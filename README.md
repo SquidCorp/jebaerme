@@ -1,25 +1,40 @@
 # jebaerme
 
-Typed Python package skeleton with a mechanical quality loop (Ruff, ty, pytest) and a small layered layout (`api` → `services` → `db` + `models`). Agents should read `AGENTS.md` before changing code.
+Monorepo with a typed Python API (`apps/api`) and a Next.js frontend (`apps/web`). The browser talks to Next.js Route Handlers; those handlers are the Node gateway to FastAPI.
+
+Agents should read `AGENTS.md` before changing code.
 
 ## Setup
 
-Requires Python 3.13 and [uv](https://docs.astral.sh/uv/).
+Requires Python 3.13, [uv](https://docs.astral.sh/uv/), Node.js, and [pnpm](https://pnpm.io/).
 
 ```bash
-uv sync --all-groups
-cp .env.example .env
+just install
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env
 ```
+
+`just install` is `just install-api` then `just install-web` (`uv sync` and `pnpm install`).
 
 ## Run
 
+API (FastAPI on `http://127.0.0.1:8000`):
+
 ```bash
-just run
+just dev-api
 # or
-uv run python -m jebaerme.main
+uv run --directory apps/api python -m jebaerme.main
 ```
 
-Prints a JSON health payload, for example `{"status":"ok","env":"dev"}`.
+Web (Next.js on `http://localhost:3000`):
+
+```bash
+just dev-web
+# or
+pnpm --dir apps/web dev
+```
+
+`GET /health` on the API returns `{"status":"ok","env":"dev"}`. The UI reads that through `GET /api/health` on Next.js.
 
 ## Check
 
@@ -27,9 +42,9 @@ Prints a JSON health payload, for example `{"status":"ok","env":"dev"}`.
 just check
 ```
 
-That is the same four gates CI runs: Ruff format check, Ruff lint, ty, pytest.
+CI runs two jobs: Ruff / ty / pytest for the API, and lint / typecheck / build for the web app.
 
-Format locally with `just fmt`. Tests only: `just test`.
+Format Python with `just fmt`. Tests only: `just test`.
 
 ## Agents
 

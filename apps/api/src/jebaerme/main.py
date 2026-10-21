@@ -1,10 +1,12 @@
 """Process entry. No business logic."""
 
-from jebaerme.services import get_health
+import uvicorn
+
+from jebaerme.api.app import app
 
 
 def main() -> None:
-    print(get_health().model_dump_json())
+    uvicorn.run(app, host="127.0.0.1", port=8000)
 
 
 if __name__ == "__main__":

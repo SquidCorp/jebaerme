@@ -1,12 +1,13 @@
 [project]
 name = "jebaerme"
 version = "0.1.0"
-description = "Add your description here"
-readme = "README.md"
+description = "jebaerme API"
 requires-python = ">=3.13"
 dependencies = [
+    "fastapi>=0.115",
     "pydantic-settings>=2.15.0",
     "python-dotenv>=1.2.3",
+    "uvicorn[standard]>=0.32",
 ]
 
 [build-system]
@@ -15,6 +16,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "httpx2>=2.16.0",
     "pytest>=8",
     "ruff>=0.16",
     "ty>=0.0.84",

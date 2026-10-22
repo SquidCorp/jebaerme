@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 
 from jebaerme.api.app import create_app
-from jebaerme.services import get_health
+from jebaerme.services.health import get_health
 
 
 def test_health_status_ok() -> None:

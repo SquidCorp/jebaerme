@@ -1,4 +1,5 @@
 import { HealthStatus } from "./health-status";
+import { HelloStatus } from "./hello-status";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
         <p className="lede">Frontend talks to Python only through the Next.js gateway.</p>
       </header>
       <HealthStatus />
+      <HelloStatus />
     </main>
   );
 }

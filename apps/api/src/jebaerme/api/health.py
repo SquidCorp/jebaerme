@@ -2,8 +2,8 @@
 
 from fastapi import APIRouter
 
-from jebaerme.models import Health
-from jebaerme.services import get_health
+from jebaerme.models.health import Health
+from jebaerme.services.health import get_health
 
 router = APIRouter()
 

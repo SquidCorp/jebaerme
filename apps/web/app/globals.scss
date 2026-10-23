@@ -209,7 +209,7 @@ h1 {
   margin: 0;
 }
 
-.card div {
+.card dl > div {
   display: flex;
   align-items: baseline;
   gap: var(--spacing-2);
@@ -242,4 +242,99 @@ h1 {
 
 .status-error {
   color: var(--error);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.chat {
+  gap: var(--spacing-3);
+  padding: var(--spacing-4) 0;
+}
+
+.chat-log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+  margin: 0;
+  padding: var(--spacing-3) 0;
+  max-height: 20rem;
+  overflow-y: auto;
+  list-style: none;
+  border-top: var(--spacing-px) solid var(--color-border);
+  border-bottom: var(--spacing-px) solid var(--color-border);
+}
+
+.chat-log li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-1);
+}
+
+.chat-empty {
+  color: var(--color-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-snug);
+}
+
+.chat-role {
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-widest);
+  line-height: var(--leading-snug);
+  color: var(--color-secondary);
+}
+
+.chat-bubble {
+  margin: 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-foreground);
+  white-space: pre-wrap;
+}
+
+.chat-form {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.chat-form input {
+  flex: 1;
+  min-width: 0;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: var(--spacing-px) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+}
+
+.chat-form input:disabled,
+.chat-form button:disabled {
+  opacity: var(--opacity-disabled);
+}
+
+.chat-form button {
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-background);
+  font-family: var(--font-display);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--tracking-widest);
+  cursor: pointer;
 }

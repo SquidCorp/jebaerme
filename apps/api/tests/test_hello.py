@@ -7,7 +7,7 @@ from jebaerme.api.app import create_app
 from jebaerme.services.hello import LlmAuthError, say_hello
 
 
-@patch("jebaerme.services.hello.ChatOpenRouter")
+@patch("jebaerme.agents.agent.ChatOpenRouter")
 def test_say_hello(mock_chat: MagicMock) -> None:
     mock_chat.return_value.invoke.return_value = AIMessage(content="Bonjour")
     hello = say_hello()
@@ -16,7 +16,7 @@ def test_say_hello(mock_chat: MagicMock) -> None:
     mock_chat.return_value.invoke.assert_called_once()
 
 
-@patch("jebaerme.services.hello.ChatOpenRouter")
+@patch("jebaerme.agents.agent.ChatOpenRouter")
 def test_hello_endpoint(mock_chat: MagicMock) -> None:
     mock_chat.return_value.invoke.return_value = AIMessage(content="Hola")
     client = TestClient(create_app())

@@ -8,7 +8,7 @@ __all__ = ["JevAuthError", "classify_intent"]
 _INTENT_QUESTION = ChoiceQuestion(
     instructions="What is the intent of this message?",
     criteria={
-        "generic": ( 
+        "generic": (
             "intent is to learn something more personal about the person."
             "Personal details. Language spoken. Hobbies."
         ),

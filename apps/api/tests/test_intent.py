@@ -37,10 +37,13 @@ def test_classify_intent_sends_choice_question(mock_jev_cls: MagicMock) -> None:
     assert isinstance(question, ChoiceQuestion)
     assert question.instructions == "What is the intent of this message?"
     assert question.criteria == {
-        "generic": "intent is to learn something about a person",
+        "generic": (
+            "intent is to learn something more personal about the person."
+            "Personal details. Language spoken. Hobbies."
+        ),
         "soft_skills": (
             "intent is about evaluating how the person acts in a "
-            "professional environment."
+            "professional environment. Will the person fit in the team."
         ),
         "technical_skills": (
             "intent is about evaluation the knowledge of the person in technical fields"

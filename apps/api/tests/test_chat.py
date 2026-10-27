@@ -8,19 +8,24 @@ from jebaerme.api.app import create_app
 from jebaerme.services.chat import LlmAuthError
 
 
-async def fake_chunks() -> AsyncIterator[AIMessageChunk]:
-    yield AIMessageChunk(content="Hel")
-    yield AIMessageChunk(content="lo")
+async def fake_chunks() -> AsyncIterator[tuple[AIMessageChunk, dict[str, str]]]:
+    yield AIMessageChunk(content="Hel"), {}
+    yield AIMessageChunk(content="lo"), {}
 
 
 @patch("jebaerme.agents.agent.ChatOpenRouter")
-def test_chat_endpoint_streams(mock_chat: MagicMock) -> None:
-    mock_chat.return_value.astream.return_value = fake_chunks()
+@patch("jebaerme.agents.agent.create_agent")
+def test_chat_endpoint_streams(
+    mock_create_agent: MagicMock, _mock_chat: MagicMock
+) -> None:
+    graph = MagicMock()
+    graph.astream.return_value = fake_chunks()
+    mock_create_agent.return_value = graph
     client = TestClient(create_app())
     response = client.post("/chat", json={"message": "Hi"})
     assert response.status_code == 200
     assert response.text == "Hello"
-    mock_chat.return_value.astream.assert_called_once()
+    graph.astream.assert_called_once()
 
 
 @patch("jebaerme.api.chat.stream_chat", new_callable=AsyncMock)

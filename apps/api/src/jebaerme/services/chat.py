@@ -12,7 +12,7 @@ async def stream_chat(message: str) -> AsyncIterator[str]:
     agent = Agent(
         AgentPrompt(prompt="You are a helpful assistant."),
         AgentConfig(
-            model="minimax/minimax-m3.1-flash",
+            model="anthropic/claude-haiku-5.5",
             temperature=0.9,
         ),
     )

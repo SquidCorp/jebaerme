@@ -12,6 +12,7 @@ build/
 .coverage
 htmlcov/
 .tycache/
+.langgraph_api/
 *.db
 *.sqlite3
 .DS_Store

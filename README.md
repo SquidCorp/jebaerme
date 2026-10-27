@@ -36,6 +36,16 @@ pnpm --dir apps/web dev
 
 `GET /health` on the API returns `{"status":"ok","env":"dev"}`. The UI reads that through `GET /api/health` on Next.js.
 
+LangGraph Studio (local Agent Server on `http://127.0.0.1:2024`):
+
+```bash
+just dev-studio
+# or
+uv run --directory apps/api langgraph dev --allow-blocking
+```
+
+Open [Studio](https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024). Requires `LANGSMITH_API_KEY` in `apps/api/.env`. In Studio, run the `chat` graph with `{"message": "your text"}`.
+
 ## Check
 
 ```bash

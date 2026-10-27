@@ -8,17 +8,23 @@ from jebaerme.services.hello import LlmAuthError, say_hello
 
 
 @patch("jebaerme.agents.agent.ChatOpenRouter")
-def test_say_hello(mock_chat: MagicMock) -> None:
-    mock_chat.return_value.invoke.return_value = AIMessage(content="Bonjour")
+@patch("jebaerme.agents.agent.create_agent")
+def test_say_hello(mock_create_agent: MagicMock, _mock_chat: MagicMock) -> None:
+    graph = MagicMock()
+    graph.invoke.return_value = {"messages": [AIMessage(content="Bonjour")]}
+    mock_create_agent.return_value = graph
     hello = say_hello()
     assert hello.status == "ok"
     assert hello.text == "Bonjour"
-    mock_chat.return_value.invoke.assert_called_once()
+    graph.invoke.assert_called_once()
 
 
 @patch("jebaerme.agents.agent.ChatOpenRouter")
-def test_hello_endpoint(mock_chat: MagicMock) -> None:
-    mock_chat.return_value.invoke.return_value = AIMessage(content="Hola")
+@patch("jebaerme.agents.agent.create_agent")
+def test_hello_endpoint(mock_create_agent: MagicMock, _mock_chat: MagicMock) -> None:
+    graph = MagicMock()
+    graph.invoke.return_value = {"messages": [AIMessage(content="Hola")]}
+    mock_create_agent.return_value = graph
     client = TestClient(create_app())
     response = client.get("/hello")
     assert response.status_code == 200

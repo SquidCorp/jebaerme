@@ -33,6 +33,20 @@ def test_apply_langsmith_env_exports_sdk_vars(monkeypatch: MonkeyPatch) -> None:
     assert os.environ["LANGSMITH_AGENT_ENVIRONMENT"] == "local"
 
 
+def test_enable_intent_decision_can_be_disabled() -> None:
+    settings = Settings(ENABLE_INTENT_DECISION=False)
+    assert settings.ENABLE_INTENT_DECISION is False
+
+
+def test_chat_model_defaults_to_haiku() -> None:
+    assert Settings.model_fields["CHAT_MODEL"].default == "anthropic/claude-haiku-5.5"
+
+
+def test_chat_model_can_be_overridden() -> None:
+    settings = Settings(CHAT_MODEL="openai/gpt-5-mini")
+    assert settings.CHAT_MODEL == "openai/gpt-5-mini"
+
+
 def test_apply_langsmith_env_disabled_clears_vars(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setenv("LANGSMITH_TRACING", "true")
     settings = Settings(LANGSMITH_TRACING=False)

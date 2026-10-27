@@ -4,7 +4,12 @@ from fastapi.testclient import TestClient
 
 from jebaerme.api.app import create_app
 from jebaerme.models.jev import BaseJevResponse, ChoiceAnswer, ChoiceQuestion
-from jebaerme.services.intent import JevAuthError, classify_intent
+from jebaerme.services.intent import (
+    INTENT_LANGUAGE_INSTRUCTIONS,
+    JevAuthError,
+    classify_intent,
+    instruction_for_intent,
+)
 
 _INTENT_RESPONSE = {
     "id": "gen-dec-1",
@@ -77,6 +82,22 @@ def test_intent_endpoint_maps_auth_error(_classify: MagicMock) -> None:
     response = client.post("/decisions/intent", json={"state": "Tell me about Alice"})
     assert response.status_code == 502
     assert response.json() == {"detail": "rejected"}
+
+
+def test_instruction_for_intent_maps_interview_labels() -> None:
+    assert (
+        instruction_for_intent("soft_skills")
+        == (INTENT_LANGUAGE_INSTRUCTIONS["soft_skills"])
+    )
+    assert "business language" in INTENT_LANGUAGE_INSTRUCTIONS["soft_skills"]
+    assert (
+        instruction_for_intent("generic") == (INTENT_LANGUAGE_INSTRUCTIONS["generic"])
+    )
+    assert (
+        instruction_for_intent("technical_skills")
+        == (INTENT_LANGUAGE_INSTRUCTIONS["technical_skills"])
+    )
+    assert instruction_for_intent("unknown") is None
 
 
 def test_intent_endpoint_rejects_empty_state() -> None:

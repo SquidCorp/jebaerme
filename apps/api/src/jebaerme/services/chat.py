@@ -2,28 +2,20 @@
 
 from collections.abc import AsyncIterator
 
-from jebaerme.agents.agent import Agent, LlmAuthError
-from jebaerme.models.agent import AgentConfig, AgentPrompt
+from jebaerme.agents.agent import LlmAuthError
+from jebaerme.agents.chat_graph import astream_chat
 
 __all__ = ["LlmAuthError", "stream_chat"]
 
 
 async def stream_chat(message: str) -> AsyncIterator[str]:
-    agent = Agent(
-        AgentPrompt(prompt="You are a helpful assistant."),
-        AgentConfig(
-            model="anthropic/claude-haiku-5.5",
-            temperature=0.9,
-        ),
-    )
-    chunks = agent.stream(message)
+    chunks = astream_chat(message)
     first = await anext(chunks, None)
 
     async def texts() -> AsyncIterator[str]:
-        if first is not None and first.text:
-            yield first.text
+        if first is not None:
+            yield first
         async for chunk in chunks:
-            if chunk.text:
-                yield chunk.text
+            yield chunk
 
     return texts()

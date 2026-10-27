@@ -1,0 +1,9 @@
+{
+  "$schema": "https://raw.githubusercontent.com/langchain-ai/langgraph/main/libs/cli/schemas/schema.json",
+  "python_version": "3.13",
+  "dependencies": ["."],
+  "graphs": {
+    "chat": "./src/jebaerme/agents/chat_graph.py:graph"
+  },
+  "env": ".env"
+}

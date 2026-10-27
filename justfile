@@ -37,6 +37,9 @@ check-web:
 dev-api:
     uv run --directory apps/api python -m jebaerme.main
 
+dev-studio:
+    uv run --directory apps/api langgraph dev --allow-blocking
+
 dev-web:
     pnpm --dir apps/web dev
 

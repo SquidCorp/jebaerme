@@ -48,6 +48,7 @@ Prefer `just`:
 - `just check-api` / `just check-web` — one side
 - `just test` — pytest
 - `just dev-api` — FastAPI on `:8000`
+- `just dev-studio` — LangGraph Studio local server on `:2024`
 - `just dev-web` — Next.js on `:3000`
 - `just run-dev` — both (API in the background, then Next.js)
 
@@ -61,6 +62,7 @@ uv run --directory apps/api ruff check .
 uv run --directory apps/api ty check
 uv run --directory apps/api pytest
 uv run --directory apps/api python -m jebaerme.main
+uv run --directory apps/api langgraph dev --allow-blocking
 
 pnpm --dir apps/web fmt
 pnpm --dir apps/web lint

@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     )
 
     APP_ENV: str = "dev"
+    CHAT_MODEL: str = "anthropic/claude-haiku-5.5"
+    ENABLE_INTENT_DECISION: bool = False
     OPENROUTER_API_KEY: SecretStr | None = None
     LANGSMITH_TRACING: bool = False
     LANGSMITH_ENDPOINT: str | None = None

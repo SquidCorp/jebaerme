@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Card } from "@/app/card";
+import { gatewayErrorMessage } from "@/lib/gateway-error";
+import styles from "./health-status.module.scss";
 
 type Health = {
   status: string;
@@ -22,7 +25,9 @@ export function HealthStatus() {
       .then(async (response) => {
         const payload: unknown = await response.json();
         if (!response.ok) {
-          throw new Error(errorMessage(payload, `Gateway returned ${response.status}`));
+          throw new Error(
+            gatewayErrorMessage(payload, `Gateway returned ${response.status}`),
+          );
         }
         if (!isHealth(payload)) {
           throw new Error("Gateway returned an unexpected payload");
@@ -33,7 +38,8 @@ export function HealthStatus() {
         if (controller.signal.aborted) {
           return;
         }
-        const message = error instanceof Error ? error.message : "Unknown error";
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
         setState({ kind: "error", message });
       });
 
@@ -42,36 +48,33 @@ export function HealthStatus() {
 
   if (state.kind === "loading") {
     return (
-      <section className="card" aria-labelledby="health-heading">
-        <h2 id="health-heading">HEALTH</h2>
-        <p>Checking health…</p>
-      </section>
+      <Card title="HEALTH" headingId="health-heading">
+        <p className={styles.message}>Checking health…</p>
+      </Card>
     );
   }
 
   if (state.kind === "error") {
     return (
-      <section className="card" aria-labelledby="health-heading">
-        <h2 id="health-heading">HEALTH</h2>
-        <p className="status-error">{state.message}</p>
-      </section>
+      <Card title="HEALTH" headingId="health-heading">
+        <p className={styles.error}>{state.message}</p>
+      </Card>
     );
   }
 
   return (
-    <section className="card" aria-labelledby="health-heading">
-      <h2 id="health-heading">HEALTH</h2>
-      <dl>
+    <Card title="HEALTH" headingId="health-heading">
+      <dl className={styles.list}>
         <div>
           <dt>STATUS</dt>
-          <dd className="status-ok">{state.health.status}</dd>
+          <dd className={styles.ok}>{state.health.status}</dd>
         </div>
         <div>
           <dt>ENV</dt>
           <dd>{state.health.env}</dd>
         </div>
       </dl>
-    </section>
+    </Card>
   );
 }
 
@@ -83,14 +86,4 @@ function isHealth(value: unknown): value is Health {
     return false;
   }
   return typeof value.status === "string" && typeof value.env === "string";
-}
-
-function errorMessage(payload: unknown, fallback: string): string {
-  if (typeof payload === "object" && payload !== null && "error" in payload) {
-    const error = payload.error;
-    if (typeof error === "string") {
-      return error;
-    }
-  }
-  return fallback;
 }

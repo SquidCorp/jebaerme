@@ -11,7 +11,7 @@ check: check-api check-web
 
 fmt: fmt-api fmt-web
 
-test: test-api
+test: test-api test-web
 
 check-api:
     uv run --directory apps/api ruff format --check .
@@ -29,9 +29,13 @@ test-api:
 fmt-web:
     pnpm --dir apps/web fmt
 
+test-web:
+    pnpm --dir apps/web test
+
 check-web:
     pnpm --dir apps/web lint
     pnpm --dir apps/web typecheck
+    pnpm --dir apps/web test
     pnpm --dir apps/web build
 
 dev-api:

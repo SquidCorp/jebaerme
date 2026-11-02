@@ -32,9 +32,19 @@ apps/web/   Next.js App Router (pnpm, TypeScript, Sass)
 ### `apps/web`
 
 - App Router + TypeScript. Styles in Sass (`.scss`), not Tailwind.
+- Each presentational component TSX has a sibling CSS module (`chat.tsx` + `chat.module.scss`) and imports it. Do not add component rules to a shared dump file.
+- `globals.scss` is tokens, reset, and fonts only (`:root`, `html`/`body`). Layout may import it. Hooks, route handlers, and tests have no stylesheets.
 - Browser calls Next.js only. Python is reached through Route Handlers under `app/api/` (Node gateway). Do not call the Python origin from client code.
 - Gateway handlers proxy/map errors. No business rules there.
 - Package manager is pnpm. Do not add npm/yarn lockfiles.
+- Lint/format with Biome only (no ESLint). Caps: cognitive complexity 15, 80 lines/function, 4 params.
+- Named exports by default. Default exports only for App Router `page`/`layout` files and `*.config.ts`.
+- No barrel files and no `export *`. No `any`. TypeScript `noUncheckedIndexedAccess` is on.
+- Colocate unit tests as `*.test.ts` / `*.test.tsx`. Use Vitest + Testing Library. No network, no secrets.
+- React UI is hooks + composition only. No HOCs (`withX(Component)`), no class components, no inheritance.
+- Split stateful UI into a `use*` hook (state, effects, fetch) and presentational components (JSX, props, `children`). Hooks must not return JSX. Presentational components must not call `fetch` or `useState` for server data.
+- `app/**/page.tsx` only composes components. No `fetch`, no `useState`, no effects in pages.
+- Prefer `children` / small composed components over one component with a large props surface. Repeat markup becomes a component.
 
 ## Commands
 
@@ -46,7 +56,8 @@ Prefer `just`:
 - `just fmt-api` / `just fmt-web` — one side
 - `just check` — API + web gates (same as CI)
 - `just check-api` / `just check-web` — one side
-- `just test` — pytest
+- `just test` — pytest + vitest
+- `just test-api` / `just test-web` — one side
 - `just dev-api` — FastAPI on `:8000`
 - `just dev-studio` — LangGraph Studio local server on `:2024`
 - `just dev-web` — Next.js on `:3000`
@@ -67,6 +78,7 @@ uv run --directory apps/api langgraph dev --allow-blocking
 pnpm --dir apps/web fmt
 pnpm --dir apps/web lint
 pnpm --dir apps/web typecheck
+pnpm --dir apps/web test
 pnpm --dir apps/web build
 pnpm --dir apps/web dev
 ```
@@ -82,9 +94,10 @@ Do not consider a **Python** change finished until all of these pass (from `apps
 
 Do not consider a **web** change finished until all of these pass (from `apps/web`):
 
-1. `pnpm lint`
+1. `pnpm lint` (`biome check .`)
 2. `pnpm typecheck`
-3. `pnpm build`
+3. `pnpm test` (`vitest run`)
+4. `pnpm build`
 
 A change that touches both must pass `just check`.
 
@@ -105,7 +118,7 @@ A change that touches both must pass `just check`.
 4. Adapter — FastAPI in `api/`.
 5. Gateway — Next.js Route Handler under `apps/web/app/api/` if the UI needs it.
 6. UI — App Router page/component. Fetch the gateway, not Python.
-7. Test — pytest under `apps/api/tests/`. No network, no secrets.
+7. Test — pytest under `apps/api/tests/`; Vitest next to web modules (`*.test.ts(x)`). No network, no secrets.
 
 ## Out of scope
 

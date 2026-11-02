@@ -1,0 +1,101 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.4/schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!!**/.next",
+      "!!**/coverage",
+      "!!**/*.scss",
+      "!!**/next-env.d.ts"
+    ]
+  },
+  "formatter": {
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 80
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "on"
+      }
+    }
+  },
+  "linter": {
+    "domains": {
+      "next": "recommended",
+      "react": "recommended",
+      "test": "recommended"
+    },
+    "rules": {
+      "preset": "recommended",
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": {
+            "maxAllowedComplexity": 15
+          }
+        },
+        "noExcessiveLinesPerFunction": {
+          "level": "error",
+          "options": {
+            "maxLines": 80,
+            "skipBlankLines": true
+          }
+        },
+        "useMaxParams": {
+          "level": "error",
+          "options": {
+            "max": 4
+          }
+        }
+      },
+      "performance": {
+        "noBarrelFile": "error",
+        "noReExportAll": "error"
+      },
+      "style": {
+        "noDefaultExport": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "error"
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": [
+        "**/page.tsx",
+        "**/layout.tsx",
+        "**/loading.tsx",
+        "**/error.tsx",
+        "**/not-found.tsx",
+        "**/template.tsx",
+        "**/default.tsx",
+        "**/global-error.tsx",
+        "**/*.config.ts",
+        "**/*.config.mts",
+        "**/*.d.ts"
+      ],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    }
+  ]
+}

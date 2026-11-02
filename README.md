@@ -52,9 +52,9 @@ Open [Studio](https://smith.langchain.com/studio/?baseUrl=http://127.0.0.1:2024)
 just check
 ```
 
-CI runs two jobs: Ruff / ty / pytest for the API, and lint / typecheck / build for the web app.
+CI runs two jobs: Ruff / ty / pytest for the API, and Biome / typecheck / vitest / build for the web app.
 
-Format Python with `just fmt`. Tests only: `just test`.
+Format with `just fmt`. Tests only: `just test`.
 
 ## Agents
 

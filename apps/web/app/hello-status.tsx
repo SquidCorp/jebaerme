@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Card } from "@/app/card";
+import { gatewayErrorMessage } from "@/lib/gateway-error";
+import styles from "./hello-status.module.scss";
 
 type Hello = {
   status: string;
@@ -22,7 +25,9 @@ export function HelloStatus() {
       .then(async (response) => {
         const payload: unknown = await response.json();
         if (!response.ok) {
-          throw new Error(errorMessage(payload, `Gateway returned ${response.status}`));
+          throw new Error(
+            gatewayErrorMessage(payload, `Gateway returned ${response.status}`),
+          );
         }
         if (!isHello(payload)) {
           throw new Error("Gateway returned an unexpected payload");
@@ -33,7 +38,8 @@ export function HelloStatus() {
         if (controller.signal.aborted) {
           return;
         }
-        const message = error instanceof Error ? error.message : "Unknown error";
+        const message =
+          error instanceof Error ? error.message : "Unknown error";
         setState({ kind: "error", message });
       });
 
@@ -42,36 +48,33 @@ export function HelloStatus() {
 
   if (state.kind === "loading") {
     return (
-      <section className="card" aria-labelledby="hello-heading">
-        <h2 id="hello-heading">HELLO</h2>
-        <p>Asking the model…</p>
-      </section>
+      <Card title="HELLO" headingId="hello-heading">
+        <p className={styles.message}>Asking the model…</p>
+      </Card>
     );
   }
 
   if (state.kind === "error") {
     return (
-      <section className="card" aria-labelledby="hello-heading">
-        <h2 id="hello-heading">HELLO</h2>
-        <p className="status-error">{state.message}</p>
-      </section>
+      <Card title="HELLO" headingId="hello-heading">
+        <p className={styles.error}>{state.message}</p>
+      </Card>
     );
   }
 
   return (
-    <section className="card" aria-labelledby="hello-heading">
-      <h2 id="hello-heading">HELLO</h2>
-      <dl>
+    <Card title="HELLO" headingId="hello-heading">
+      <dl className={styles.list}>
         <div>
           <dt>STATUS</dt>
-          <dd className="status-ok">{state.hello.status}</dd>
+          <dd className={styles.ok}>{state.hello.status}</dd>
         </div>
         <div>
           <dt>TEXT</dt>
           <dd>{state.hello.text}</dd>
         </div>
       </dl>
-    </section>
+    </Card>
   );
 }
 
@@ -83,14 +86,4 @@ function isHello(value: unknown): value is Hello {
     return false;
   }
   return typeof value.status === "string" && typeof value.text === "string";
-}
-
-function errorMessage(payload: unknown, fallback: string): string {
-  if (typeof payload === "object" && payload !== null && "error" in payload) {
-    const error = payload.error;
-    if (typeof error === "string") {
-      return error;
-    }
-  }
-  return fallback;
 }

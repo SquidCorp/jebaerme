@@ -29,9 +29,11 @@ _INTENT_QUESTION = ChoiceQuestion(
     instructions="What is the intent of this message?",
     criteria={
         "generic": (
-            "Intent of the message is to learn something more personal about the person."
+            "Intent of the message is to learn something more personal "
+            "about the person."
             "The kind of sentence that can be heard in a polite small talk."
-            "Such as personal details, language spoken, hobbies. It also evaluates the ambition and the motivation of the candidate."
+            "Such as personal details, language spoken, hobbies. It also "
+            "evaluates the ambition and the motivation of the candidate."
         ),
         "soft_skills": (
             "Intent is about evaluating how the person acts in a "
@@ -39,7 +41,8 @@ _INTENT_QUESTION = ChoiceQuestion(
             "Does the candidate match the expection for a job?"
         ),
         "technical_skills": (
-            "Intent is about evaluation the knowledge of the person in a technical fields."
+            "Intent is about evaluation the knowledge of the person in a "
+            "technical fields."
         ),
     },
 )

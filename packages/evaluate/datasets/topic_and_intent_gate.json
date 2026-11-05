@@ -1,0 +1,302 @@
+[
+  {
+    "id": 1,
+    "question": "Tell me about a challenging technical problem you solved recently and how you approached it.",
+    "intent": "technical",
+    "allowed": true
+  },
+  {
+    "id": 2,
+    "question": "How do you approach learning a new technology, framework, or domain?",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 3,
+    "question": "Describe a time you worked effectively in a cross-functional or distributed team.",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 4,
+    "question": "What are your professional career goals for the next 3–5 years?",
+    "intent": "personal",
+    "allowed": true
+  },
+  {
+    "id": 5,
+    "question": "Explain the difference between supervised and unsupervised learning, with an example of each.",
+    "intent": "technical",
+    "allowed": true
+  },
+  {
+    "id": 6,
+    "question": "How do you handle conflicting priorities or competing deadlines on a project?",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 7,
+    "question": "Can you walk me through a high-level system design for a recommendation or ranking system?",
+    "intent": "technical",
+    "allowed": true
+  },
+  {
+    "id": 8,
+    "question": "What motivates you in your day-to-day work as an engineer?",
+    "intent": "personal",
+    "allowed": true
+  },
+  {
+    "id": 9,
+    "question": "Tell me about a time you received constructive feedback and how you applied it.",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 10,
+    "question": "How do you ensure code quality, readability, and maintainability in your projects?",
+    "intent": "technical",
+    "allowed": true
+  },
+  {
+    "id": 11,
+    "question": "Describe your experience working with agile or iterative development practices.",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 12,
+    "question": "What interests you about this role and our company or product?",
+    "intent": "personal",
+    "allowed": true
+  },
+  {
+    "id": 13,
+    "question": "Explain overfitting in machine learning and common techniques to prevent it.",
+    "intent": "technical",
+    "allowed": true
+  },
+  {
+    "id": 14,
+    "question": "How do you typically collaborate and communicate with non-technical stakeholders?",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 15,
+    "question": "Tell me about a project where you applied machine learning or AI techniques. What was your role?",
+    "intent": "technical",
+    "allowed": true
+  },
+  {
+    "id": 16,
+    "question": "How do you stay updated with developments in software engineering or applied AI?",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 17,
+    "question": "What is your preferred programming language or tech stack for this type of role, and why?",
+    "intent": "technical",
+    "allowed": true
+  },
+  {
+    "id": 18,
+    "question": "Describe a situation where you had to deliver under a tight deadline. How did you manage it?",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 19,
+    "question": "How do you approach debugging a complex or hard-to-reproduce issue?",
+    "intent": "technical",
+    "allowed": true
+  },
+  {
+    "id": 20,
+    "question": "What kind of team environment or working style helps you perform at your best?",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 21,
+    "question": "Explain the concept of transfer learning and when you might use it.",
+    "intent": "technical",
+    "allowed": true
+  },
+  {
+    "id": 22,
+    "question": "Tell me about a time you improved a process, tool, or system in a previous role.",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 23,
+    "question": "Are you authorized to work in the European Union (or the specific country of the role)?",
+    "intent": "personal",
+    "allowed": true
+  },
+  {
+    "id": 24,
+    "question": "How do you balance technical excellence or best practices with business or product needs?",
+    "intent": "soft_skill",
+    "allowed": true
+  },
+  {
+    "id": 25,
+    "question": "Describe your experience with version control, code review, and continuous integration/delivery.",
+    "intent": "technical",
+    "allowed": true
+  },
+  {
+    "id": 26,
+    "question": "How old are you?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 27,
+    "question": "Are you married, in a civil partnership, or single?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 28,
+    "question": "Do you have children, or are you planning to start a family?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 29,
+    "question": "What is your religion or do you practice any religious or philosophical beliefs?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 30,
+    "question": "What is your sexual orientation or gender identity?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 31,
+    "question": "Do you have any disabilities, health conditions, or medical issues we should know about?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 32,
+    "question": "Where were you born, or what is your nationality or ethnic origin?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 33,
+    "question": "Are you pregnant or planning to become pregnant?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 34,
+    "question": "What are your political views, party affiliation, or opinions on current events?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 35,
+    "question": "Are you a member of a trade union or any professional association?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 36,
+    "question": "How many sick days or absences did you have in your previous roles?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 37,
+    "question": "What is your current or previous salary?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 38,
+    "question": "What childcare arrangements do you have that might affect your availability?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 39,
+    "question": "What is your ethnic or racial background?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 40,
+    "question": "When do you plan to retire?",
+    "intent": "personal",
+    "allowed": false
+  },
+  {
+    "id": 41,
+    "question": "Write a Python function that implements a binary search on a sorted list and returns the index of the target or -1 if not found.",
+    "intent": "technical",
+    "allowed": false
+  },
+  {
+    "id": 42,
+    "question": "Implement a simple REST API endpoint in Flask or FastAPI that accepts a JSON payload, validates it, and returns a response.",
+    "intent": "technical",
+    "allowed": false
+  },
+  {
+    "id": 43,
+    "question": "Write SQL queries to solve this schema problem: find the top 5 customers by total order value, including joins and aggregations.",
+    "intent": "technical",
+    "allowed": false
+  },
+  {
+    "id": 44,
+    "question": "Code a basic neural network from scratch (forward pass only) using only NumPy for a binary classification task.",
+    "intent": "technical",
+    "allowed": false
+  },
+  {
+    "id": 45,
+    "question": "Draw or describe in detail the architecture diagram of a microservices system handling real-time inference, including data flow, queues, and scaling points.",
+    "intent": "technical",
+    "allowed": false
+  },
+  {
+    "id": 46,
+    "question": "Write a recursive algorithm to solve the N-queens problem and explain the time complexity with an example run.",
+    "intent": "technical",
+    "allowed": false
+  },
+  {
+    "id": 47,
+    "question": "Implement a custom loss function and training loop for a regression model in PyTorch, including gradient clipping.",
+    "intent": "technical",
+    "allowed": false
+  },
+  {
+    "id": 48,
+    "question": "Write a script that parses a large log file, extracts specific metrics, and outputs a summary using only standard library tools or a one-liner.",
+    "intent": "technical",
+    "allowed": false
+  },
+  {
+    "id": 49,
+    "question": "Code a thread-safe producer-consumer pattern using locks or queues in Python or Java and explain race conditions you handled.",
+    "intent": "technical",
+    "allowed": false
+  },
+  {
+    "id": 50,
+    "question": "Implement an efficient data structure (e.g., a trie or LRU cache) and demonstrate insertion/retrieval with sample input in code.",
+    "intent": "technical",
+    "allowed": false
+  }
+]

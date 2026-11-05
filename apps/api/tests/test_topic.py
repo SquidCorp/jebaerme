@@ -33,9 +33,13 @@ def test_filter_out_topic_sends_noul_question(mock_jev_cls: MagicMock) -> None:
     questions = mock_jev_cls.call_args.args[0]
     question = questions["filter_out"]
     assert isinstance(question, NoulQuestion)
-    assert question.instructions == "Can the message be processed by the system?"
+    assert question.instructions == (
+        "A HR or technical recruiter sends a message to evaluate a "
+        "candidate during a job interview. But all messages should not "
+        "trigger the system. Is this message safe to be processes?"
+    )
     assert "job interview" in question.criteria.true
-    assert "Politics" in question.criteria.false
+    assert "political views" in question.criteria.false
     mock_jev_cls.return_value.send.assert_called_once_with(
         "Tell me about your system design experience."
     )

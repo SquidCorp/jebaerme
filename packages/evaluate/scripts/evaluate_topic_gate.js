@@ -1,15 +1,18 @@
 #!/usr/bin/env node
 
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const TOPIC_NOUL_THRESHOLD = 0.75;
 const DATASET_RELATIVE_PATH = path.join("datasets", "topic_and_intent_gate.json");
+const RESULTS_RELATIVE_PATH = path.join("results", "topic_gate");
 const DEFAULT_BASE_URL = "http://127.0.0.1:8000";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const datasetPath = path.join(scriptDir, DATASET_RELATIVE_PATH);
+const packageDir = path.resolve(scriptDir, "..");
+const datasetPath = path.join(packageDir, DATASET_RELATIVE_PATH);
+const resultsDir = path.join(packageDir, RESULTS_RELATIVE_PATH);
 const apiBaseUrl = (process.env.API_BASE_URL ?? DEFAULT_BASE_URL).replace(/\/$/, "");
 const topicUrl = `${apiBaseUrl}/decisions/topic`;
 
@@ -92,7 +95,8 @@ async function main() {
   }
 
   const filename = `result_eval_topic_gate_${formatDatetime(new Date())}.csv`;
-  const outputPath = path.join(scriptDir, filename);
+  await mkdir(resultsDir, { recursive: true });
+  const outputPath = path.join(resultsDir, filename);
   await writeFile(outputPath, `${rows.join("\n")}\n`, "utf8");
   console.log(`Wrote ${outputPath}`);
 }

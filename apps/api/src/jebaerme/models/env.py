@@ -11,6 +11,7 @@ from pydantic_settings import (
 )
 
 _API_ROOT = Path(__file__).resolve().parents[3]
+_DEFAULT_DATABASE_URL = f"sqlite:///{(_API_ROOT / 'data' / 'app.db').as_posix()}"
 
 _LANGSMITH_ENV_KEYS = (
     "LANGSMITH_TRACING",
@@ -29,10 +30,12 @@ class Settings(BaseSettings):
     )
 
     APP_ENV: str = "dev"
+    DATABASE_URL: str = _DEFAULT_DATABASE_URL
     CHAT_MODEL: str = "anthropic/claude-haiku-5.5"
     ENABLE_INTENT_DECISION: bool = False
     ENABLE_TOPIC_DECISION: bool = False
     OPENROUTER_API_KEY: SecretStr | None = None
+    FIRECRAWL_API_KEY: SecretStr | None = None
     LANGSMITH_TRACING: bool = False
     LANGSMITH_ENDPOINT: str | None = None
     LANGSMITH_API_KEY: SecretStr | None = None
@@ -51,7 +54,9 @@ class Settings(BaseSettings):
         # apps/api/.env beats a stale OPENROUTER_API_KEY exported in the shell.
         return init_settings, dotenv_settings, env_settings, file_secret_settings
 
-    @field_validator("OPENROUTER_API_KEY", "LANGSMITH_API_KEY", mode="before")
+    @field_validator(
+        "OPENROUTER_API_KEY", "FIRECRAWL_API_KEY", "LANGSMITH_API_KEY", mode="before"
+    )
     @classmethod
     def strip_secret(cls, value: object) -> object:
         if isinstance(value, str):
@@ -62,6 +67,11 @@ class Settings(BaseSettings):
         if self.OPENROUTER_API_KEY is None:
             return None
         return self.OPENROUTER_API_KEY.get_secret_value()
+
+    def firecrawl_api_key(self) -> str | None:
+        if self.FIRECRAWL_API_KEY is None:
+            return None
+        return self.FIRECRAWL_API_KEY.get_secret_value()
 
     def apply_langsmith_env(self) -> None:
         """Export LangSmith settings so the SDK can trace create_agent runs."""

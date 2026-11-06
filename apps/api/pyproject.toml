@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "jebaerme API"
 requires-python = ">=3.13"
 dependencies = [
+    "deepagents>=0.7.34",
     "fastapi>=0.115",
     "langchain>=1.4.7",
     "langchain-openrouter>=0.2.9",
@@ -11,6 +12,7 @@ dependencies = [
     "pydantic-settings>=2.15.0",
     "python-dotenv>=1.2.3",
     "requests>=2.34.2",
+    "sqlmodel>=0.0.48",
     "uvicorn[standard]>=0.32",
 ]
 

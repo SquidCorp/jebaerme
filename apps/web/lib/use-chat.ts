@@ -4,6 +4,7 @@ import {
   type FormEvent,
   type RefObject,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from "react";
@@ -37,12 +38,12 @@ export function useChat(): ChatView {
     return () => controllerRef.current?.abort();
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const node = logRef.current;
     if (node === null || messages.length === 0) {
       return;
     }
-    node.scrollTo?.({ top: node.scrollHeight });
+    node.scrollTop = node.scrollHeight;
   }, [messages]);
 
   async function handleSubmit(

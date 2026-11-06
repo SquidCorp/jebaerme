@@ -34,7 +34,7 @@ just dev-web
 pnpm --dir apps/web dev
 ```
 
-`GET /health` on the API returns `{"status":"ok","env":"dev"}`. The UI reads that through `GET /api/health` on Next.js.
+`GET /health` on the API returns `{"status":"ok","env":"dev"}`. The gateway exposes that as `GET /api/health`.
 
 LangGraph Studio (local Agent Server on `http://127.0.0.1:2024`):
 

@@ -32,7 +32,22 @@ describe("Chat", () => {
     await user.type(screen.getByLabelText("Message"), "Hello");
     await user.click(screen.getByRole("button", { name: "Send" }));
 
-    expect(await screen.findByText("YOU")).toBeInTheDocument();
+    expect(await screen.findByText("You")).toBeInTheDocument();
+    expect(await screen.findByText("Hi")).toBeInTheDocument();
+  });
+
+  it("submits on Enter and keeps Shift+Enter as a newline", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn().mockResolvedValue(streamResponse(["Hi"]));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<Chat />);
+    const field = screen.getByLabelText("Message");
+    await user.type(field, "Hello{Shift>}{Enter}{/Shift}");
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    await user.type(field, "{Enter}");
+    expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(await screen.findByText("Hi")).toBeInTheDocument();
   });
 

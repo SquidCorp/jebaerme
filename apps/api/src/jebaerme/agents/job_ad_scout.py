@@ -126,7 +126,7 @@ def _job_ad_tools(
         job_title: str,
         full_remote: bool = False,
         location: str | None = None,
-        markdown: str = ""
+        markdown: str | None = None,
     ) -> str:
         """Save extracted job ad fields to the jobs table.
 
@@ -135,7 +135,11 @@ def _job_ad_tools(
             job_title: Role title from the ad.
             full_remote: True only if the role is fully remote.
             location: City, region, or country, if present.
+            markdown: Edited job ad markdown, if provided.
         """
+        saved_markdown = markdown or (
+            fetched_markdown[-1] if fetched_markdown else None
+        )
         job = persist(
             JobCreate(
                 company_name=company_name,
@@ -143,7 +147,7 @@ def _job_ad_tools(
                 job_title=job_title,
                 full_remote=full_remote,
                 location=location or None,
-                markdown=markdown,
+                markdown=saved_markdown,
             )
         )
         saved.append(job)

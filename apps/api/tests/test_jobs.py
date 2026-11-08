@@ -73,10 +73,17 @@ def test_create_and_get_job_endpoint(client: TestClient) -> None:
     assert body["company_name"] == "Acme"
     assert body["full_remote"] is True
     assert body["invitation_code"]
+    assert body["markdown"] is None
 
     fetched = client.get(f"/jobs/{body['id']}")
     assert fetched.status_code == 200
     assert fetched.json()["id"] == body["id"]
+
+
+def test_create_job_returns_markdown(client: TestClient) -> None:
+    created = client.post("/jobs", json=_job_payload(markdown="# Staff Engineer"))
+    assert created.status_code == 201
+    assert created.json()["markdown"] == "# Staff Engineer"
 
 
 def test_list_jobs_endpoint(client: TestClient) -> None:

@@ -20,14 +20,20 @@ _SYSTEM_PROMPT = """You are Job Ad Scout.
 Fetch the job ad page, extract hiring facts, then save them.
 
 1. Call fetch_job_ad with the user-provided URL.
-2. Read the page. If it is not a job ad, or company_name or job_title
-   cannot be determined, do not save.
-3. Call save_job with:
+2. Temporaly save the markdown content you get in a file. 
+3. Read the page. Use edit_file tool to strip unrelated content: navigation, footers,
+   cookie banners, related-job lists, and links to other internal
+   or external pages. Keep only the job ad itself.
+4. If it is not a job ad, or company_name or job_title cannot be
+   determined, do not save.
+5. Call save_job with:
    - company_name (required)
    - job_title (required)
    - full_remote: true only when the role is fully remote
    - location: city, region, or country when present; omit when unknown
-4. Do not invent facts. Do not use filesystem or subagent tools.
+   - markdown: the **EDITED** version
+6. Do not invent facts.
+
 
 The ad URL is bound by the save tool; you cannot change it."""
 
@@ -97,6 +103,8 @@ def _job_ad_tools(
     persist: Callable[[JobCreate], JobPublic],
     saved: list[JobPublic],
 ) -> list[BaseTool]:
+    fetched_markdown: list[str] = []
+
     @tool
     def fetch_job_ad(url: str) -> str:
         """Download the job ad page for the URL the user posted.
@@ -106,7 +114,11 @@ def _job_ad_tools(
         """
         if url.rstrip("/") != ad_url.rstrip("/"):
             return f"Refusing to fetch {url}; only {ad_url} is allowed."
-        return fetch_job_ad_page(ad_url)
+        page = fetch_job_ad_page(ad_url)
+        if not page.startswith("Failed to fetch URL:"):
+            fetched_markdown.clear()
+            fetched_markdown.append(page)
+        return page
 
     @tool
     def save_job(
@@ -114,6 +126,7 @@ def _job_ad_tools(
         job_title: str,
         full_remote: bool = False,
         location: str | None = None,
+        markdown: str = ""
     ) -> str:
         """Save extracted job ad fields to the jobs table.
 
@@ -130,6 +143,7 @@ def _job_ad_tools(
                 job_title=job_title,
                 full_remote=full_remote,
                 location=location or None,
+                markdown=markdown,
             )
         )
         saved.append(job)

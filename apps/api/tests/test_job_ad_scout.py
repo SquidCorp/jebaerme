@@ -146,6 +146,41 @@ def test_run_saves_extracted_job(mock_agent_cls: MagicMock, session: Session) ->
     assert loaded.job_title == "Engineer"
     assert loaded.full_remote is True
     assert loaded.location == "Paris"
+    assert loaded.markdown is None
+
+
+@patch("jebaerme.agents.job_ad_scout.requests.post")
+@patch("jebaerme.agents.job_ad_scout.DeepAgent")
+def test_run_saves_fetched_markdown(
+    mock_agent_cls: MagicMock,
+    mock_post: MagicMock,
+    session: Session,
+    firecrawl_key: None,
+) -> None:
+    ad_url = "https://jobs.example.com/acme-engineer"
+    markdown = "# Staff Engineer\n\nParis"
+    mock_post.return_value = _scrape_response(markdown=markdown)
+
+    def invoke_fetch_then_save(_msg: str) -> str:
+        tools = mock_agent_cls.call_args.kwargs["tools"]
+        fetch_tool = next(tool for tool in tools if tool.name == "fetch_job_ad")
+        save_tool = next(tool for tool in tools if tool.name == "save_job")
+        fetch_tool.invoke({"url": ad_url})
+        return str(
+            save_tool.invoke(
+                {
+                    "company_name": "Acme",
+                    "job_title": "Engineer",
+                    "full_remote": True,
+                    "location": "Paris",
+                }
+            )
+        )
+
+    mock_agent_cls.return_value.invoke.side_effect = invoke_fetch_then_save
+    job = JobAdScout(persist=lambda payload: create_job(session, payload)).run(ad_url)
+    loaded = get_job(session, job.id)
+    assert loaded.markdown == markdown
 
 
 @patch("jebaerme.agents.job_ad_scout.DeepAgent")

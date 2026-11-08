@@ -19,6 +19,10 @@ class JobCreate(BaseModel):
         default=None,
         description="Location from the job ad.",
     )
+    markdown: str | None = Field(
+        default=None,
+        description="Firecrawl markdown of the job ad page.",
+    )
 
 
 class JobAdUrlCreate(BaseModel):
@@ -43,6 +47,10 @@ class JobUpdate(BaseModel):
         default=None,
         description="Location from the job ad.",
     )
+    markdown: str | None = Field(
+        default=None,
+        description="Firecrawl markdown of the job ad page.",
+    )
 
 
 class JobPublic(BaseModel):
@@ -56,5 +64,9 @@ class JobPublic(BaseModel):
     job_title: str = Field(description="Job title extracted by an agent.")
     full_remote: bool = Field(description="Whether the job is fully remote.")
     location: str | None = Field(description="Location from the job ad.")
+    markdown: str | None = Field(
+        default=None,
+        description="Firecrawl markdown of the job ad page.",
+    )
     invitation_code: str = Field(description="Server-generated invitation code.")
     created_at: datetime = Field(description="When the job was created.")

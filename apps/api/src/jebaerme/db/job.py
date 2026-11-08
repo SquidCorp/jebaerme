@@ -20,6 +20,7 @@ class Job(SQLModel, table=True):
     job_title: str
     full_remote: bool = Field(default=False)
     location: str | None = Field(default=None)
+    markdown: str | None = Field(default=None)
     invitation_code: str = Field(unique=True, index=True)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 

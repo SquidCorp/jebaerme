@@ -22,6 +22,30 @@ export async function proxyPythonGet(
   }
 }
 
+export async function proxyPythonPost(
+  path: `/${string}`,
+  body: unknown,
+): Promise<NextResponse> {
+  try {
+    const response = await fetch(`${API_BASE_URL}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      return NextResponse.json({ error: "upstream_error" }, { status: 502 });
+    }
+    const payload: unknown = await response.json();
+    return NextResponse.json(payload);
+  } catch {
+    return NextResponse.json(
+      { error: "upstream_unreachable" },
+      { status: 502 },
+    );
+  }
+}
+
 export async function proxyPythonPostStream(
   path: `/${string}`,
   body: unknown,

@@ -54,3 +54,27 @@ run-dev:
     api_pid=$!
     trap 'kill "$api_pid" 2>/dev/null || true' EXIT INT TERM
     pnpm --dir apps/web dev
+
+sync:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    current="$(git branch --show-current)"
+    git fetch origin --prune
+    if [[ "${current}" == "main" ]]; then
+        git merge --ff-only origin/main
+    else
+        git fetch origin main:main
+    fi
+    if [[ "${current}" == "develop" ]]; then
+        git merge --ff-only origin/develop
+    else
+        git fetch origin develop:develop
+    fi
+    git checkout develop
+    if [[ "${current}" != "develop" ]]; then
+        git merge --ff-only origin/develop
+    fi
+    if [[ -n "${current}" && "${current}" != "main" && "${current}" != "develop" ]] \
+        && git merge-base --is-ancestor "${current}" HEAD; then
+        git branch -d "${current}"
+    fi

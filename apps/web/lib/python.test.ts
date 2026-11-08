@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { proxyPythonGet, proxyPythonPostStream } from "@/lib/python";
+import {
+  proxyPythonGet,
+  proxyPythonPost,
+  proxyPythonPostStream,
+} from "@/lib/python";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -86,5 +90,55 @@ describe("proxyPythonPostStream", () => {
     const response = await proxyPythonPostStream("/chat", { message: "hi" });
     expect(response.status).toBe(502);
     await expect(response.json()).resolves.toEqual({ error: "upstream_error" });
+  });
+});
+
+describe("proxyPythonPost", () => {
+  it("forwards a successful JSON payload", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse(201, { id: "job-1" }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await proxyPythonPost("/jobs/new/url", {
+      ad_url: "https://jobs.example.com/ad",
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://127.0.0.1:8000/jobs/new/url",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ad_url: "https://jobs.example.com/ad" }),
+        cache: "no-store",
+      },
+    );
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ id: "job-1" });
+  });
+
+  it("maps a failed upstream response to 502", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(jsonResponse(422, { detail: "invalid" })),
+    );
+    const response = await proxyPythonPost("/jobs/new/url", {
+      ad_url: "https://jobs.example.com/ad",
+    });
+    expect(response.status).toBe(502);
+    await expect(response.json()).resolves.toEqual({ error: "upstream_error" });
+  });
+
+  it("maps a network failure to 502", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockRejectedValue(new Error("ECONNREFUSED")),
+    );
+    const response = await proxyPythonPost("/jobs/new/url", {
+      ad_url: "https://jobs.example.com/ad",
+    });
+    expect(response.status).toBe(502);
+    await expect(response.json()).resolves.toEqual({
+      error: "upstream_unreachable",
+    });
   });
 });

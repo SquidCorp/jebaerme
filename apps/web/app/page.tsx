@@ -1,15 +1,18 @@
+import { Suspense } from "react";
 import { Chat } from "./chat";
+import { InviteGate } from "./invite-gate";
 import styles from "./page.module.scss";
 import { PageHeader } from "./page-header";
 
-export default function Home() {
+export default function Home({ searchParams }: PageProps<"/">) {
   return (
-    <main className={styles.main}>
-      <PageHeader
-        title="JÉRÉMY BAER"
-        lede="Frontend talks to Python only through the Next.js gateway."
-      />
-      <Chat />
-    </main>
+    <Suspense>
+      <InviteGate searchParams={searchParams}>
+        <main className={styles.main}>
+          <PageHeader title="JÉRÉMY BAER" lede="Chat with my virtual clone." />
+          <Chat />
+        </main>
+      </InviteGate>
+    </Suspense>
   );
 }

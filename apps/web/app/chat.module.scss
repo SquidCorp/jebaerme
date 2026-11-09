@@ -26,16 +26,26 @@
 .user,
 .assistant {
   display: flex;
-  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--spacing-2);
   max-width: 80%;
 }
 
 .user {
   align-self: flex-end;
+  flex-direction: row-reverse;
 }
 
 .assistant {
   align-self: flex-start;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: var(--spacing-8);
+  height: var(--spacing-8);
+  border-radius: var(--radius-full);
+  object-fit: cover;
 }
 
 .bubble {

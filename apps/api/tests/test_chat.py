@@ -5,6 +5,8 @@ from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessageChunk
 from pytest import MonkeyPatch
 
+from jebaerme.agents.business import SYSTEM_PROMPT as BUSINESS_SYSTEM_PROMPT
+from jebaerme.agents.tech import SYSTEM_PROMPT as TECH_SYSTEM_PROMPT
 from jebaerme.api.app import create_app
 from jebaerme.models.jev import BaseJevResponse
 from jebaerme.services.chat import LlmAuthError
@@ -56,6 +58,22 @@ _INTENT_RESPONSE = {
     "usage": {"input_tokens": 100, "output_tokens": 10, "cost": 0.0001},
 }
 
+_TECHNICAL_INTENT_RESPONSE = {
+    **_INTENT_RESPONSE,
+    "answers": {
+        "intent": {
+            "type": "choice",
+            "choice": "technical_skills",
+            "confidence": 0.8,
+            "probabilities": {
+                "generic": 0.1,
+                "soft_skills": 0.1,
+                "technical_skills": 0.8,
+            },
+        }
+    },
+}
+
 
 async def fake_chunks() -> AsyncIterator[tuple[AIMessageChunk, dict[str, str]]]:
     yield AIMessageChunk(content="Hel"), {}
@@ -93,9 +111,7 @@ def test_chat_endpoint_streams(
     assert response.status_code == 200
     assert response.text == "Hello"
     graph.astream.assert_called_once()
-    assert mock_create_agent.call_args.kwargs["system_prompt"] == (
-        "You are a helpful assistant."
-    )
+    assert mock_create_agent.call_args.kwargs["system_prompt"] == BUSINESS_SYSTEM_PROMPT
 
 
 @patch("jebaerme.agents.chat_graph.classify_intent")
@@ -139,7 +155,7 @@ def test_chat_appends_intent_instruction_when_flag_on(
     assert response.text == "Hello"
     classify.assert_called_once_with("How does she handle conflict?")
     prompt = mock_create_agent.call_args.kwargs["system_prompt"]
-    assert prompt.startswith("You are a helpful assistant.")
+    assert prompt.startswith(BUSINESS_SYSTEM_PROMPT)
     assert INTENT_LANGUAGE_INSTRUCTIONS["soft_skills"] in prompt
 
 
@@ -163,9 +179,7 @@ def test_chat_retries_jev_then_continues_without_intent(
     assert response.status_code == 200
     assert response.text == "Hello"
     assert classify.call_count == 3
-    assert mock_create_agent.call_args.kwargs["system_prompt"] == (
-        "You are a helpful assistant."
-    )
+    assert mock_create_agent.call_args.kwargs["system_prompt"] == BUSINESS_SYSTEM_PROMPT
 
 
 @patch("jebaerme.agents.chat_graph.classify_intent")
@@ -192,7 +206,32 @@ def test_chat_uses_intent_after_jev_retries(
     assert response.status_code == 200
     assert classify.call_count == 3
     prompt = mock_create_agent.call_args.kwargs["system_prompt"]
+    assert prompt.startswith(BUSINESS_SYSTEM_PROMPT)
     assert INTENT_LANGUAGE_INSTRUCTIONS["soft_skills"] in prompt
+
+
+@patch("jebaerme.agents.chat_graph.classify_intent")
+@patch("jebaerme.agents.agent.ChatOpenRouter")
+@patch("jebaerme.agents.agent.create_agent")
+def test_chat_routes_technical_intent_to_tech_agent(
+    mock_create_agent: MagicMock,
+    _mock_chat: MagicMock,
+    classify: MagicMock,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    _set_intent_flag(monkeypatch, True)
+    _set_topic_flag(monkeypatch, False)
+    classify.return_value = BaseJevResponse.model_validate(_TECHNICAL_INTENT_RESPONSE)
+    graph = MagicMock()
+    graph.astream.return_value = fake_chunks()
+    mock_create_agent.return_value = graph
+    client = TestClient(create_app())
+    response = client.post("/chat", json={"message": "How do you design APIs?"})
+    assert response.status_code == 200
+    assert response.text == "Hello"
+    prompt = mock_create_agent.call_args.kwargs["system_prompt"]
+    assert prompt.startswith(TECH_SYSTEM_PROMPT)
+    assert INTENT_LANGUAGE_INSTRUCTIONS["technical_skills"] in prompt
 
 
 @patch("jebaerme.api.chat.stream_chat", new_callable=AsyncMock)

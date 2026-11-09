@@ -5,6 +5,7 @@ from collections.abc import AsyncIterator
 from langchain.agents import create_agent
 from langchain_core.messages import AIMessage, AIMessageChunk
 from langchain_openrouter import ChatOpenRouter
+from langgraph.config import get_stream_writer
 from openrouter.errors.unauthorizedresponse_error import UnauthorizedResponseError
 
 from jebaerme.models.agent import AgentConfig, AgentPrompt
@@ -56,6 +57,23 @@ class Agent:
             raise LlmAuthError(
                 "OpenRouter rejected OPENROUTER_API_KEY (401 User not found)."
             ) from exc
+
+
+async def stream_agent_text(message: str, system_prompt: str) -> str:
+    writer = get_stream_writer()
+    agent = Agent(
+        AgentPrompt(prompt=system_prompt),
+        AgentConfig(
+            model=env.CHAT_MODEL,
+            temperature=0.9,
+        ),
+    )
+    texts: list[str] = []
+    async for chunk in agent.stream(message):
+        if chunk.text:
+            writer(chunk.text)
+            texts.append(chunk.text)
+    return "".join(texts)
 
 
 def _user_turn(msg: str) -> dict[str, list[dict[str, str]]]:

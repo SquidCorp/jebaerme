@@ -54,7 +54,8 @@ function ChatBubble({ entry, busy }: ChatBubbleProps) {
       <Image
         className={styles.avatar}
         src={isUser ? "/assets/avatar-visitor.png" : "/assets/avatar.png"}
-        alt=""
+        alt={isUser ? "visitor" : "clone"}
+        loading="eager"
         width={32}
         height={32}
       />

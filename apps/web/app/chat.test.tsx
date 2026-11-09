@@ -34,6 +34,20 @@ describe("Chat", () => {
 
     expect(await screen.findByText("You")).toBeInTheDocument();
     expect(await screen.findByText("Hi")).toBeInTheDocument();
+    expect(
+      screen
+        .getByText("You")
+        .closest("li")
+        ?.querySelector("img")
+        ?.getAttribute("src"),
+    ).toContain("avatar-visitor.png");
+    expect(
+      screen
+        .getByText("Model")
+        .closest("li")
+        ?.querySelector("img")
+        ?.getAttribute("src"),
+    ).toContain("avatar.png");
   });
 
   it("submits on Enter and keeps Shift+Enter as a newline", async () => {

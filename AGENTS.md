@@ -2,86 +2,14 @@
 
 This is a monorepo: Python API in `apps/api`, Next.js frontend in `apps/web`. Quality is a mechanical loop: a change is not done until the affected app's checks pass (`just check` covers both).
 
-## Setup
+## Conventions
 
-```bash
-uv sync --directory apps/api --all-groups
-cp apps/api/.env.example apps/api/.env
-
-pnpm --dir apps/web install
-cp apps/web/.env.example apps/web/.env
-```
-
-Never commit `.env`. Copy values from `.env.example` only.
-
-## Layout
-
-```text
-apps/api/   Python package `jebaerme` (FastAPI)
-apps/web/   Next.js App Router (pnpm, TypeScript, Sass)
-```
-
-### `apps/api`
-
-- `src/jebaerme/models/` — Pydantic schemas and settings only. No I/O.
-- `src/jebaerme/db/` — persistence only. No HTTP, no business rules.
-- `src/jebaerme/services/` — business rules. No FastAPI/router details, no SQL strings if a db module exists.
-- `src/jebaerme/api/` — HTTP adapters only. Validate with Pydantic, call services, map errors.
-- `src/jebaerme/main.py` — process entry (`uvicorn`). No business logic.
-
-### `apps/web`
-
-- App Router + TypeScript. Styles in Sass (`.scss`), not Tailwind.
-- Each presentational component TSX has a sibling CSS module (`chat.tsx` + `chat.module.scss`) and imports it. Do not add component rules to a shared dump file.
-- `globals.scss` is tokens, reset, and fonts only (`:root`, `html`/`body`). Layout may import it. Hooks, route handlers, and tests have no stylesheets.
-- Browser calls Next.js only. Python is reached through Route Handlers under `app/api/` (Node gateway). Do not call the Python origin from client code.
-- Gateway handlers proxy/map errors. No business rules there.
-- Package manager is pnpm. Do not add npm/yarn lockfiles.
-- Lint/format with Biome only (no ESLint). Caps: cognitive complexity 15, 80 lines/function, 4 params.
-- Named exports by default. Default exports only for App Router `page`/`layout` files and `*.config.ts`.
-- No barrel files and no `export *`. No `any`. TypeScript `noUncheckedIndexedAccess` is on.
-- Colocate unit tests as `*.test.ts` / `*.test.tsx`. Use Vitest + Testing Library. No network, no secrets.
-- React UI is hooks + composition only. No HOCs (`withX(Component)`), no class components, no inheritance.
-- Split stateful UI into a `use*` hook (state, effects, fetch) and presentational components (JSX, props, `children`). Hooks must not return JSX. Presentational components must not call `fetch` or `useState` for server data.
-- `app/**/page.tsx` only composes components. No `fetch`, no `useState`, no effects in pages.
-- Prefer `children` / small composed components over one component with a large props surface. Repeat markup becomes a component.
-
-## Commands
-
-Prefer `just`:
-
-- `just install` — `uv sync` (API) + `pnpm install` (web)
-- `just install-api` / `just install-web` — one side
-- `just fmt` — format and autofix lint (API + web)
-- `just fmt-api` / `just fmt-web` — one side
-- `just check` — API + web gates (same as CI)
-- `just check-api` / `just check-web` — one side
-- `just test` — pytest + vitest
-- `just test-api` / `just test-web` — one side
-- `just dev-api` — FastAPI on `:8000`
-- `just dev-studio` — LangGraph Studio local server on `:2024`
-- `just dev-web` — Next.js on `:3000`
-- `just run-dev` — both (API in the background, then Next.js)
-
-Raw equivalents:
-
-```bash
-uv run --directory apps/api ruff format .
-uv run --directory apps/api ruff check --fix .
-uv run --directory apps/api ruff format --check .
-uv run --directory apps/api ruff check .
-uv run --directory apps/api ty check
-uv run --directory apps/api pytest
-uv run --directory apps/api python -m jebaerme.main
-uv run --directory apps/api langgraph dev --allow-blocking
-
-pnpm --dir apps/web fmt
-pnpm --dir apps/web lint
-pnpm --dir apps/web typecheck
-pnpm --dir apps/web test
-pnpm --dir apps/web build
-pnpm --dir apps/web dev
-```
+- Type everything. No `Any` (Python) and no `any` (TypeScript).
+- Pydantic models at Python process boundaries.
+- No business logic in adapters (`apps/api/.../api/`) or `main.py`.
+- No I/O in `models/`.
+- No empty files except package-marker `__init__.py` files that already exist.
+- Never commit `.env` or secrets.
 
 ## Done criteria
 
@@ -100,15 +28,6 @@ Do not consider a **web** change finished until all of these pass (from `apps/we
 4. `pnpm build`
 
 A change that touches both must pass `just check`.
-
-## Conventions
-
-- Type everything. No `Any` (Python) and no `any` (TypeScript).
-- Pydantic models at Python process boundaries.
-- No business logic in adapters (`apps/api/.../api/`) or `main.py`.
-- No I/O in `models/`.
-- No empty files except package-marker `__init__.py` files that already exist.
-- Never commit `.env` or secrets.
 
 ## Adding a feature
 

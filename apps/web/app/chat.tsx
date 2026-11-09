@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   type ChangeEvent,
   type FormEvent,
@@ -47,9 +48,18 @@ type ChatBubbleProps = {
 
 function ChatBubble({ entry, busy }: ChatBubbleProps) {
   const isUser = entry.role === "user";
+  const speaker = isUser ? "You" : "Model";
   return (
     <li className={isUser ? styles.user : styles.assistant}>
-      <span className={styles.visuallyHidden}>{isUser ? "You" : "Model"}</span>
+      <Image
+        className={styles.avatar}
+        src={isUser ? "/assets/avatar-visitor.png" : "/assets/avatar.png"}
+        alt={isUser ? "visitor" : "clone"}
+        loading="eager"
+        width={32}
+        height={32}
+      />
+      <span className={styles.visuallyHidden}>{speaker}</span>
       <p className={styles.bubble}>{entry.text || (busy ? "…" : "")}</p>
     </li>
   );

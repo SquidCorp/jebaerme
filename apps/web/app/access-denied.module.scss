@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: center;
   min-height: 100dvh;
-  background: var(--color-primary);
+  background: var(--color-secondary);
 }
 
 .inner {
@@ -32,6 +32,7 @@
   align-items: center;
   gap: var(--spacing-2);
   width: 100%;
+  color: var(--color-white)
 }
 
 .title {
@@ -45,7 +46,7 @@
   font-weight: var(--font-weight-bold);
   letter-spacing: var(--tracking-display);
   line-height: var(--leading-display);
-  color: var(--color-white);
+  color: var(--color-primary);
 }
 
 .prompt {
@@ -62,11 +63,7 @@
   letter-spacing: var(--tracking-wide);
   line-height: var(--leading-relaxed);
   text-align: center;
-  color: color-mix(
-    in srgb,
-    var(--color-foreground) var(--opacity-subtle),
-    transparent
-  );
+  color: var(--color-white);
 }
 
 .visuallyHidden {

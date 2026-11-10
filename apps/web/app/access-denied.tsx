@@ -8,7 +8,8 @@ export function AccessDenied() {
         <Image
           className={styles.face}
           src="/assets/grimacing_face.png"
-          alt=""
+          alt="grimacing face"
+          loading="eager"
           width={360}
           height={360}
         />

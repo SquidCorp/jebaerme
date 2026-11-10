@@ -1,0 +1,46 @@
+services:
+  falkordb-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.falkordb
+    image: falkordb-server:local
+    container_name: falkordb-server
+    ports:
+      - "6379:6379"
+    environment:
+      - FALKORDB_PASSWORD=${FALKORDB_PASSWORD}
+      - REDIS_ARGS=--requirepass ${FALKORDB_PASSWORD}
+      - FALKORDB_ARGS=THREAD_COUNT 4
+    volumes:
+      - falkordb_data:/var/lib/falkordb/data
+    restart: unless-stopped
+    networks:
+      - falkordb-network
+
+  falkordb-browser:
+    image: falkordb/falkordb-browser:latest
+    container_name: falkordb-browser
+    ports:
+      - "3030:3000"
+    environment:
+      - FALKORDB_HOST=falkordb-server
+      - FALKORDB_PORT=6379
+      - FALKORDB_USERNAME=default
+      - FALKORDB_PASSWORD=${FALKORDB_PASSWORD}
+      - FALKORDB_AUTO_CONNECT=true
+      - AUTH_SECRET=${AUTH_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - NEXTAUTH_URL=${NEXTAUTH_URL:-http://localhost:3030}
+    depends_on:
+      - falkordb-server
+    restart: unless-stopped
+    networks:
+      - falkordb-network
+
+volumes:
+  falkordb_data:
+    driver: local
+
+networks:
+  falkordb-network:
+    driver: bridge

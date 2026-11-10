@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     ENABLE_TOPIC_DECISION: bool = False
     OPENROUTER_API_KEY: SecretStr | None = None
     FIRECRAWL_API_KEY: SecretStr | None = None
+    FALKORDB_HOST: str = "localhost"
+    FALKORDB_PORT: int = 6379
+    FALKORDB_USERNAME: str | None = None
+    FALKORDB_PASSWORD: SecretStr | None = None
+    FALKORDB_GRAPH: str = "jebaerme"
     LANGSMITH_TRACING: bool = False
     LANGSMITH_ENDPOINT: str | None = None
     LANGSMITH_API_KEY: SecretStr | None = None
@@ -55,7 +60,11 @@ class Settings(BaseSettings):
         return init_settings, dotenv_settings, env_settings, file_secret_settings
 
     @field_validator(
-        "OPENROUTER_API_KEY", "FIRECRAWL_API_KEY", "LANGSMITH_API_KEY", mode="before"
+        "OPENROUTER_API_KEY",
+        "FIRECRAWL_API_KEY",
+        "LANGSMITH_API_KEY",
+        "FALKORDB_PASSWORD",
+        mode="before",
     )
     @classmethod
     def strip_secret(cls, value: object) -> object:
@@ -72,6 +81,11 @@ class Settings(BaseSettings):
         if self.FIRECRAWL_API_KEY is None:
             return None
         return self.FIRECRAWL_API_KEY.get_secret_value()
+
+    def falkordb_password(self) -> str | None:
+        if self.FALKORDB_PASSWORD is None:
+            return None
+        return self.FALKORDB_PASSWORD.get_secret_value()
 
     def apply_langsmith_env(self) -> None:
         """Export LangSmith settings so the SDK can trace create_agent runs."""

@@ -1,0 +1,11 @@
+FROM falkordb/falkordb-server:latest
+
+ARG FALKORDB_PASSWORD=falkordb
+
+ENV FALKORDB_PASSWORD=${FALKORDB_PASSWORD} \
+    REDIS_ARGS="--requirepass ${FALKORDB_PASSWORD}" \
+    FALKORDB_ARGS="THREAD_COUNT 4"
+
+EXPOSE 6379
+
+VOLUME ["/var/lib/falkordb/data"]

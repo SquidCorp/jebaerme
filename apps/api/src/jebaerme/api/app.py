@@ -11,6 +11,7 @@ from jebaerme.api.decisions import router as decisions_router
 from jebaerme.api.health import router as health_router
 from jebaerme.api.jobs import router as jobs_router
 from jebaerme.db.session import create_db_engine, get_session, init_db
+from jebaerme.graphdb.graphdb import init_graph
 
 
 def create_app(*, database_url: str | None = None) -> FastAPI:
@@ -23,7 +24,10 @@ def create_app(*, database_url: str | None = None) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
         init_db(engine)
+        graph = init_graph()
+        _app.state.graph = graph
         yield
+        graph.client.close()
         engine.dispose()
 
     app = FastAPI(title="jebaerme", lifespan=lifespan)

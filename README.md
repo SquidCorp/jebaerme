@@ -6,7 +6,7 @@ Agents should read `AGENTS.md` before changing code.
 
 ## Setup
 
-Requires Python 3.13, [uv](https://docs.astral.sh/uv/), Node.js, and [pnpm](https://pnpm.io/).
+Requires Python 3.14, [uv](https://docs.astral.sh/uv/), Node.js, and [pnpm](https://pnpm.io/).
 
 ```bash
 just install

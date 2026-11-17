@@ -1,0 +1,283 @@
+{
+  "main": {
+    "id": "79f2cb1144186e80",
+    "type": "split",
+    "children": [
+      {
+        "id": "678f1f40b6b21401",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c28b05ffc698d6a4",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Jeremy.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Jeremy"
+            }
+          },
+          {
+            "id": "4a182d2a6e4b1d2f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Jeremy.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Jeremy"
+            }
+          },
+          {
+            "id": "e6487229c1f85f2e",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "claims/Fraud incident.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Fraud incident"
+            }
+          },
+          {
+            "id": "6628aecdfea6b6ae",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Jeremy.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Jeremy"
+            }
+          },
+          {
+            "id": "cb1c6337c03c4316",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Romeinse presentatie.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Romeinse presentatie"
+            }
+          }
+        ],
+        "currentTab": 4
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "57544fee5fc5a45b",
+    "type": "split",
+    "children": [
+      {
+        "id": "c0d7f6abde29915e",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f9fe062a6d77db84",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Explorateur de fichiers"
+            }
+          },
+          {
+            "id": "3a179ca2d2270828",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Rechercher"
+            }
+          },
+          {
+            "id": "2c2bdc87bbf87f1b",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Signets"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "d89dae4da2ad69f8",
+    "type": "split",
+    "children": [
+      {
+        "id": "bd2ace28c54d6352",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "687e2934c884d8b9",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "claims/Self taught web development.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Rétroliens"
+            }
+          },
+          {
+            "id": "73cf53b57c9b2fb3",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "claims/Self taught web development.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Liens sortants"
+            }
+          },
+          {
+            "id": "63736d81711f2900",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Mots-clés"
+            }
+          },
+          {
+            "id": "74ad3bd20662ab73",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Toutes les propriétés"
+            }
+          },
+          {
+            "id": "7c3cd530cd88ce10",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "claims/Self taught web development.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Plan"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Ouvrir le sélecteur rapide": false,
+      "graph:Ouvrir la vue graphique": false,
+      "canvas:Créer un nouveau canvas": false,
+      "daily-notes:Ouvrir la note quotidienne": false,
+      "templates:Insérer le modèle": false,
+      "command-palette:Ouvrir la palette de commandes": false,
+      "bases:Créer une nouvelle base": false
+    }
+  },
+  "active": "cb1c6337c03c4316",
+  "lastOpenFiles": [
+    "Jeremy.md",
+    "Romeinse presentatie.md",
+    "claims/Auth0 custom.md",
+    "claims/growthbook.md",
+    "claims/chatbot.md",
+    "claims/Fraud incident.md",
+    "claims/Self taught web development.md",
+    "claims/master EEA.md",
+    "education/Self taught web development.md",
+    "education/Master degree.md",
+    "skills/English.md",
+    "skills/French.md",
+    "claims/languages.md",
+    "claims/location.md",
+    "claims/hobbies.md",
+    "skills/Dutch.md",
+    "education",
+    "claims/Example claim.md",
+    "skills/Example skill.md",
+    "sources/Example source.md",
+    "companies/Example company.md",
+    "sources",
+    "projects/Example project.md",
+    "projects",
+    "roles/Example role.md",
+    "roles",
+    "companies",
+    "skills",
+    "claims",
+    "About_location.md",
+    "About_languages.md",
+    "About_hobbies.md"
+  ]
+}

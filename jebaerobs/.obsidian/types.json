@@ -1,0 +1,13 @@
+{
+  "types": {
+    "aliases": "aliases",
+    "cssclasses": "multitext",
+    "tags": "tags",
+    "skills": "multitext",
+    "roles": "multitext",
+    "about": "multitext",
+    "source": "multitext",
+    "example": "checkbox",
+    "education": "multitext"
+  }
+}

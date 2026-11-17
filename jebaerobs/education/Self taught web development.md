@@ -1,0 +1,4 @@
+---
+type: Education
+kin: Skill
+---

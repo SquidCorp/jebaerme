@@ -1,0 +1,4 @@
+---
+type: Education
+kind: Diploma
+---

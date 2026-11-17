@@ -6,7 +6,7 @@ Agents should read `AGENTS.md` before changing code.
 
 ## Setup
 
-Requires Python 3.14, [uv](https://docs.astral.sh/uv/), Node.js, and [pnpm](https://pnpm.io/).
+Requires Python 3.14, [uv](https://docs.astral.sh/uv/), Node.js, [pnpm](https://pnpm.io/), and [Docker](https://docs.docker.com/get-started/get-docker/) for the local Qdrant vector DB.
 
 ```bash
 just install
@@ -17,6 +17,15 @@ cp apps/web/.env.example apps/web/.env
 `just install` is `just install-api` then `just install-web` (`uv sync` and `pnpm install`).
 
 ## Run
+
+Qdrant (HTTP `http://127.0.0.1:6333`, gRPC `6334`). Storage is `data/qdrant/` (gitignored):
+
+```bash
+just qdrant
+# stop: just qdrant-down
+```
+
+The API reads `QDRANT_URL` (default `http://127.0.0.1:6333`). Qdrant is not required for `just check`.
 
 API (FastAPI on `http://127.0.0.1:8000`):
 

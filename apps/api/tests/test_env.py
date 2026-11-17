@@ -43,6 +43,10 @@ def test_enable_topic_decision_can_be_disabled() -> None:
     assert settings.ENABLE_TOPIC_DECISION is False
 
 
+def test_qdrant_url_defaults_to_local_http() -> None:
+    assert Settings.model_fields["QDRANT_URL"].default == "http://127.0.0.1:6333"
+
+
 def test_chat_model_defaults_to_haiku() -> None:
     assert Settings.model_fields["CHAT_MODEL"].default == "anthropic/claude-haiku-5.5"
 

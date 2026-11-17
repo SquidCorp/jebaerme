@@ -31,6 +31,7 @@ class Settings(BaseSettings):
 
     APP_ENV: str = "dev"
     DATABASE_URL: str = _DEFAULT_DATABASE_URL
+    QDRANT_URL: str = "http://127.0.0.1:6333"
     CHAT_MODEL: str = "anthropic/claude-haiku-5.5"
     ENABLE_INTENT_DECISION: bool = False
     ENABLE_TOPIC_DECISION: bool = False

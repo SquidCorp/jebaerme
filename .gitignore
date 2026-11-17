@@ -22,3 +22,4 @@ out/
 .turbo
 *.tsbuildinfo
 .pi
+/data/qdrant/

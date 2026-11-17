@@ -38,6 +38,12 @@ check-web:
     pnpm --dir apps/web test
     pnpm --dir apps/web build
 
+qdrant:
+    docker compose up -d qdrant
+
+qdrant-down:
+    docker compose down
+
 dev-api:
     uv run --directory apps/api python -m jebaerme.main
 

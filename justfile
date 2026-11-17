@@ -58,6 +58,12 @@ run-dev:
 sync:
     #!/usr/bin/env bash
     set -euo pipefail
+    # After a merge to main, fast-forward develop to main and push so neither
+    # branch is ahead or behind, then land on develop.
+    if ! git diff --quiet || ! git diff --cached --quiet; then
+        echo "just sync requires a clean working tree" >&2
+        exit 1
+    fi
     current="$(git branch --show-current)"
     git fetch origin --prune
     if [[ "${current}" == "main" ]]; then
@@ -71,10 +77,25 @@ sync:
         git fetch origin develop:develop
     fi
     git checkout develop
-    if [[ "${current}" != "develop" ]]; then
-        git merge --ff-only origin/develop
+    git merge --ff-only origin/develop
+    if [[ "$(git rev-parse HEAD)" != "$(git rev-parse main)" ]]; then
+        if git merge-base --is-ancestor HEAD main; then
+            git merge --ff-only main
+        else
+            echo "develop and main have diverged; resolve before just sync" >&2
+            git log --oneline --left-right --decorate HEAD...main >&2
+            exit 1
+        fi
+    fi
+    if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/develop)" ]]; then
+        git push origin develop
+    fi
+    if [[ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]]; then
+        echo "develop still does not match origin/main" >&2
+        exit 1
     fi
     if [[ -n "${current}" && "${current}" != "main" && "${current}" != "develop" ]] \
+        && git show-ref --verify --quiet "refs/heads/${current}" \
         && git merge-base --is-ancestor "${current}" HEAD; then
         git branch -d "${current}"
     fi

@@ -3,20 +3,37 @@
 from collections.abc import Callable
 from datetime import UTC, datetime
 from hashlib import sha256
+from typing import cast, get_args
 from uuid import uuid4
 
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from qdrant_client import QdrantClient
-from qdrant_client.models import PointStruct
+from qdrant_client.models import (
+    FieldCondition,
+    Filter,
+    MatchAny,
+    MatchValue,
+    PointStruct,
+    ScoredPoint,
+)
 
 from jebaerme.db.qdrant import (
     QdrantVectorSizeError,
     delete_points_by_document_id,
     ensure_knowledge_collection,
     existing_content_hashes,
+    query_knowledge_points,
     upsert_points,
 )
-from jebaerme.models.document import DocumentIngest, DocumentIngestPublic
+from jebaerme.models.document import (
+    DocumentDomain,
+    DocumentIngest,
+    DocumentIngestPublic,
+    DocumentSearch,
+    DocumentSearchHit,
+    DocumentSearchPublic,
+    DocumentSource,
+)
 from jebaerme.services import embeddings as embeddings_service
 
 CHUNK_SIZE = 1000
@@ -113,3 +130,90 @@ def ingest_document(
         skipped_chunks=len(chunks) - len(points),
         point_ids=point_ids,
     )
+
+
+def _search_filter(payload: DocumentSearch) -> Filter | None:
+    must: list[FieldCondition] = []
+    if payload.sources:
+        must.append(
+            FieldCondition(key="source", match=MatchAny(any=list(payload.sources)))
+        )
+    if payload.domains:
+        must.append(
+            FieldCondition(key="domain", match=MatchAny(any=list(payload.domains)))
+        )
+    if payload.roles:
+        must.append(FieldCondition(key="roles", match=MatchAny(any=payload.roles)))
+    if payload.language is not None:
+        must.append(
+            FieldCondition(key="language", match=MatchValue(value=payload.language))
+        )
+    if not must:
+        return None
+    return Filter(must=must)
+
+
+def _hit_from_point(point: ScoredPoint) -> DocumentSearchHit | None:
+    payload = point.payload
+    if not isinstance(payload, dict):
+        return None
+    text = payload.get("text")
+    document_id = payload.get("document_id")
+    title = payload.get("title")
+    chunk_index = payload.get("chunk_index")
+    source = payload.get("source")
+    domain = payload.get("domain")
+    if not isinstance(text, str):
+        return None
+    if not isinstance(document_id, str):
+        return None
+    if not isinstance(title, str):
+        return None
+    if not isinstance(chunk_index, int) or isinstance(chunk_index, bool):
+        return None
+    if source not in get_args(DocumentSource):
+        return None
+    if domain not in get_args(DocumentDomain):
+        return None
+    raw_roles = payload.get("roles", [])
+    if not isinstance(raw_roles, list):
+        return None
+    roles = [item for item in raw_roles if isinstance(item, str)]
+    return DocumentSearchHit(
+        score=point.score,
+        text=text,
+        document_id=document_id,
+        title=title,
+        source=cast(DocumentSource, source),
+        domain=cast(DocumentDomain, domain),
+        roles=roles,
+        chunk_index=chunk_index,
+    )
+
+
+def search_documents(
+    client: QdrantClient,
+    payload: DocumentSearch,
+    *,
+    embed_texts: Callable[[list[str]], list[list[float]]] | None = None,
+) -> DocumentSearchPublic:
+    try:
+        ensure_knowledge_collection(client)
+    except QdrantVectorSizeError as exc:
+        raise CollectionConfigError(
+            f"Qdrant collection knowledge has vector size {exc.actual}, expected 1536"
+        ) from exc
+
+    embed = embed_texts if embed_texts is not None else embeddings_service.embed_texts
+    vector = embed([payload.question])[0]
+    points = query_knowledge_points(
+        client,
+        vector,
+        limit=payload.limit,
+        score_threshold=payload.score_threshold,
+        query_filter=_search_filter(payload),
+    )
+    hits = [
+        hit for hit in (_hit_from_point(point) for point in points) if hit is not None
+    ]
+    return DocumentSearchPublic(hits=hits)

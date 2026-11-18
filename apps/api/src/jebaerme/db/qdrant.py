@@ -12,6 +12,7 @@ from qdrant_client.models import (
     MatchValue,
     PayloadSchemaType,
     PointStruct,
+    ScoredPoint,
     VectorParams,
 )
 
@@ -150,3 +151,23 @@ def upsert_points(client: QdrantClient, points: list[PointStruct]) -> None:
     if not points:
         return
     client.upsert(collection_name=KNOWLEDGE_COLLECTION, points=points)
+
+
+def query_knowledge_points(
+    client: QdrantClient,
+    vector: list[float],
+    *,
+    limit: int,
+    score_threshold: float | None = None,
+    query_filter: Filter | None = None,
+) -> list[ScoredPoint]:
+    result = client.query_points(
+        collection_name=KNOWLEDGE_COLLECTION,
+        query=vector,
+        limit=limit,
+        score_threshold=score_threshold,
+        query_filter=query_filter,
+        with_payload=True,
+        with_vectors=False,
+    )
+    return result.points

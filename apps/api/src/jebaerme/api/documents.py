@@ -3,11 +3,17 @@
 from fastapi import APIRouter, HTTPException, Request
 from qdrant_client import QdrantClient
 
-from jebaerme.models.document import DocumentIngest, DocumentIngestPublic
+from jebaerme.models.document import (
+    DocumentIngest,
+    DocumentIngestPublic,
+    DocumentSearch,
+    DocumentSearchPublic,
+)
 from jebaerme.services.documents import (
     CollectionConfigError,
     DocumentIngestError,
     ingest_document,
+    search_documents,
 )
 from jebaerme.services.embeddings import EmbeddingAuthError, EmbeddingError
 
@@ -23,6 +29,19 @@ def documents_create(body: DocumentIngest, request: Request) -> DocumentIngestPu
         return ingest_document(client, body)
     except DocumentIngestError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except (EmbeddingAuthError, EmbeddingError) as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    except CollectionConfigError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@router.post("/documents/search", response_model=DocumentSearchPublic)
+def documents_search(body: DocumentSearch, request: Request) -> DocumentSearchPublic:
+    client = request.app.state.qdrant
+    if not isinstance(client, QdrantClient):
+        raise HTTPException(status_code=503, detail="Qdrant client is not available")
+    try:
+        return search_documents(client, body)
     except (EmbeddingAuthError, EmbeddingError) as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     except CollectionConfigError as exc:

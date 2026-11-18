@@ -74,3 +74,49 @@ class DocumentIngestPublic(BaseModel):
     chunk_count: int
     skipped_chunks: int
     point_ids: list[str]
+
+
+class DocumentSearch(BaseModel):
+    question: str = Field(min_length=1)
+    limit: int = Field(default=8, ge=1, le=50)
+    score_threshold: float | None = Field(default=None, ge=0.0, le=1.0)
+    sources: list[DocumentSource] = Field(default_factory=list)
+    domains: list[DocumentDomain] = Field(default_factory=list)
+    roles: list[str] = Field(default_factory=list)
+    language: str | None = None
+
+    @field_validator("question")
+    @classmethod
+    def strip_question(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("question must not be empty")
+        return stripped
+
+    @field_validator("roles")
+    @classmethod
+    def drop_empty_roles(cls, value: list[str]) -> list[str]:
+        return [role for role in value if role]
+
+    @field_validator("language")
+    @classmethod
+    def normalize_language(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        stripped = value.strip()
+        return stripped or None
+
+
+class DocumentSearchHit(BaseModel):
+    score: float
+    text: str
+    document_id: str
+    title: str
+    source: DocumentSource
+    domain: DocumentDomain
+    roles: list[str]
+    chunk_index: int
+
+
+class DocumentSearchPublic(BaseModel):
+    hits: list[DocumentSearchHit]

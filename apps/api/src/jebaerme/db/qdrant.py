@@ -26,6 +26,7 @@ PAYLOAD_INDEXES: tuple[tuple[str, PayloadSchemaType], ...] = (
     ("source_kind", PayloadSchemaType.KEYWORD),
     ("domain", PayloadSchemaType.KEYWORD),
     ("tags", PayloadSchemaType.KEYWORD),
+    ("roles", PayloadSchemaType.KEYWORD),
     ("language", PayloadSchemaType.KEYWORD),
     ("content_hash", PayloadSchemaType.KEYWORD),
     ("source_ids", PayloadSchemaType.KEYWORD),
@@ -74,17 +75,7 @@ def close_qdrant_client(client: QdrantClientLike) -> None:
     client.close()
 
 
-def ensure_knowledge_collection(client: QdrantClient) -> None:
-    if client.collection_exists(KNOWLEDGE_COLLECTION):
-        vectors = client.get_collection(KNOWLEDGE_COLLECTION).config.params.vectors
-        if not isinstance(vectors, VectorParams) or vectors.size != VECTOR_SIZE:
-            actual = vectors.size if isinstance(vectors, VectorParams) else 0
-            raise QdrantVectorSizeError(actual)
-        return
-    client.create_collection(
-        collection_name=KNOWLEDGE_COLLECTION,
-        vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
-    )
+def _ensure_payload_indexes(client: QdrantClient) -> None:
     for field_name, field_schema in PAYLOAD_INDEXES:
         try:
             client.create_payload_index(
@@ -94,6 +85,21 @@ def ensure_knowledge_collection(client: QdrantClient) -> None:
             )
         except Exception:
             continue
+
+
+def ensure_knowledge_collection(client: QdrantClient) -> None:
+    if client.collection_exists(KNOWLEDGE_COLLECTION):
+        vectors = client.get_collection(KNOWLEDGE_COLLECTION).config.params.vectors
+        if not isinstance(vectors, VectorParams) or vectors.size != VECTOR_SIZE:
+            actual = vectors.size if isinstance(vectors, VectorParams) else 0
+            raise QdrantVectorSizeError(actual)
+        _ensure_payload_indexes(client)
+        return
+    client.create_collection(
+        collection_name=KNOWLEDGE_COLLECTION,
+        vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
+    )
+    _ensure_payload_indexes(client)
 
 
 def delete_points_by_document_id(client: QdrantClient, document_id: str) -> None:

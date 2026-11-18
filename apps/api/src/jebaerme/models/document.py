@@ -18,6 +18,7 @@ class DocumentIngest(BaseModel):
     url: str | None = None
     domain: DocumentDomain = "general"
     tags: list[str] = Field(default_factory=list)
+    roles: list[str] = Field(default_factory=list)
     language: str = Field(default="en", min_length=1)
     source_priority: int = Field(default=50, ge=0, le=100)
     source_ids: list[str] = Field(default_factory=list)
@@ -35,6 +36,11 @@ class DocumentIngest(BaseModel):
     @classmethod
     def drop_empty_tags(cls, value: list[str]) -> list[str]:
         return [tag for tag in value if tag]
+
+    @field_validator("roles")
+    @classmethod
+    def drop_empty_roles(cls, value: list[str]) -> list[str]:
+        return [role for role in value if role]
 
     @field_validator("source_ids")
     @classmethod

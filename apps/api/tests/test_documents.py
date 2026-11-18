@@ -35,6 +35,7 @@ def test_ingest_chunks_payload_dedup_and_replace() -> None:
             domain="technical",
             source_priority=80,
             source_ids=["cv/resume.md"],
+            roles=["Staff Engineer"],
         ),
         embed_texts=_fake_embed,
     )
@@ -57,6 +58,7 @@ def test_ingest_chunks_payload_dedup_and_replace() -> None:
         assert payload["domain"] == "technical"
         assert payload["source_priority"] == 80
         assert payload["source_ids"] == ["cv/resume.md"]
+        assert payload["roles"] == ["Staff Engineer"]
         assert payload["title"] == "CV"
         assert payload["text"]
         content_hash = payload["content_hash"]
@@ -184,3 +186,42 @@ def test_create_document_maps_embedding_auth_error(
     )
     assert response.status_code == 502
     assert response.json() == {"detail": "OPENROUTER_API_KEY is not configured."}
+
+
+def test_create_document_defaults_roles(client: TestClient) -> None:
+    response = client.post(
+        "/documents",
+        json={"title": "x", "text": "hi", "source": "cv"},
+    )
+    assert response.status_code == 201
+
+
+def test_create_document_drops_empty_roles(
+    tmp_path: Path, monkeypatch: MonkeyPatch
+) -> None:
+    monkeypatch.setattr("jebaerme.services.embeddings.embed_texts", _fake_embed)
+    qdrant = QdrantClient(":memory:")
+    app = create_app(
+        database_url=f"sqlite:///{tmp_path / 'roles.db'}",
+        qdrant_client=qdrant,
+    )
+    with TestClient(app) as test_client:
+        response = test_client.post(
+            "/documents",
+            json={
+                "title": "x",
+                "text": "hi",
+                "source": "cv",
+                "roles": ["Staff Engineer", ""],
+            },
+        )
+        assert response.status_code == 201
+        points, _offset = qdrant.scroll(
+            collection_name=KNOWLEDGE_COLLECTION,
+            limit=100,
+            with_payload=True,
+            with_vectors=False,
+        )
+    assert points
+    for point in points:
+        assert (point.payload or {})["roles"] == ["Staff Engineer"]

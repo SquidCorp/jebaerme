@@ -93,6 +93,7 @@ def ingest_document(
                     "url": payload.url,
                     "domain": payload.domain,
                     "tags": payload.tags,
+                    "roles": payload.roles,
                     "language": payload.language,
                     "ingested_at": ingested_at,
                     "content_hash": content_hash,

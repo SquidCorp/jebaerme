@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = _DEFAULT_DATABASE_URL
     QDRANT_URL: str = "http://127.0.0.1:6333"
     CHAT_MODEL: str = "anthropic/claude-haiku-5.5"
+    EMBEDDING_MODEL: str = "openai/text-embedding-3-small"
     ENABLE_INTENT_DECISION: bool = False
     ENABLE_TOPIC_DECISION: bool = False
     OPENROUTER_API_KEY: SecretStr | None = None

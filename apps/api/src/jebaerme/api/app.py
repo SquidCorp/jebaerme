@@ -8,6 +8,7 @@ from sqlmodel import Session
 
 from jebaerme.api.chat import router as chat_router
 from jebaerme.api.decisions import router as decisions_router
+from jebaerme.api.documents import router as documents_router
 from jebaerme.api.health import router as health_router
 from jebaerme.api.jobs import router as jobs_router
 from jebaerme.db.qdrant import (
@@ -48,6 +49,7 @@ def create_app(
     app.include_router(chat_router)
     app.include_router(decisions_router)
     app.include_router(jobs_router)
+    app.include_router(documents_router)
     return app
 
 

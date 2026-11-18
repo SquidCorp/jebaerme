@@ -51,6 +51,13 @@ def test_chat_model_defaults_to_haiku() -> None:
     assert Settings.model_fields["CHAT_MODEL"].default == "anthropic/claude-haiku-5.5"
 
 
+def test_embedding_model_defaults_to_text_embedding_3_small() -> None:
+    assert (
+        Settings.model_fields["EMBEDDING_MODEL"].default
+        == "openai/text-embedding-3-small"
+    )
+
+
 def test_chat_model_can_be_overridden() -> None:
     settings = Settings(CHAT_MODEL="openai/gpt-5-mini")
     assert settings.CHAT_MODEL == "openai/gpt-5-mini"

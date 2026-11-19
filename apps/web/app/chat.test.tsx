@@ -84,3 +84,61 @@ describe("Chat", () => {
     expect(await screen.findByText("upstream_error")).toBeInTheDocument();
   });
 });
+
+async function renderSentChat(message: string, chunks: string[]) {
+  const user = userEvent.setup();
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(streamResponse(chunks)));
+  render(<Chat />);
+  await user.type(screen.getByLabelText("Message"), message);
+  await user.click(screen.getByRole("button", { name: "Send" }));
+}
+
+describe("Chat markdown", () => {
+  it("renders assistant markdown as formatted HTML", async () => {
+    await renderSentChat("Hello", ["**Hi**"]);
+    expect(await screen.findByText("Hi")).toBeInTheDocument();
+    const modelItem = screen.getByText("Model").closest("li");
+    expect(modelItem?.querySelector("strong")?.textContent).toBe("Hi");
+  });
+
+  it("leaves user markdown as literal text", async () => {
+    await renderSentChat("**plain**", ["ok"]);
+    expect(await screen.findByText("ok")).toBeInTheDocument();
+    const youItem = screen.getByText("You").closest("li");
+    expect(youItem?.querySelector("strong")).toBeNull();
+    expect(youItem).toHaveTextContent("**plain**");
+  });
+
+  it("renders GFM tables in assistant bubbles", async () => {
+    await renderSentChat("Hello", ["| a | b |\n| --- | --- |\n| 1 | 2 |\n"]);
+    expect(await screen.findByRole("table")).toBeInTheDocument();
+    const table = screen
+      .getByText("Model")
+      .closest("li")
+      ?.querySelector("table");
+    expect(table).not.toBeNull();
+    expect(table).toHaveTextContent("1");
+    expect(table).toHaveTextContent("2");
+  });
+
+  it("opens assistant links in a new tab", async () => {
+    await renderSentChat("Hello", ["[docs](https://example.com)"]);
+    expect(await screen.findByText("docs")).toBeInTheDocument();
+    const link = screen
+      .getByText("Model")
+      .closest("li")
+      ?.querySelector(
+        'a[href="https://example.com"][target="_blank"][rel="noreferrer"]',
+      );
+    expect(link).not.toBeNull();
+  });
+
+  it("does not execute raw HTML in assistant markdown", async () => {
+    await renderSentChat("Hello", ["<script>alert(1)</script>"]);
+    const modelItem = (
+      await screen.findByText("<script>alert(1)</script>")
+    ).closest("li");
+    expect(modelItem?.querySelector("script")).toBeNull();
+    expect(modelItem).toHaveTextContent("<script>alert(1)</script>");
+  });
+});

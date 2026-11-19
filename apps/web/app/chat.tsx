@@ -8,6 +8,8 @@ import {
   useEffect,
   useRef,
 } from "react";
+import Markdown, { type Components } from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { ChatMessage } from "@/lib/chat-messages";
 import { useChat } from "@/lib/use-chat";
 import styles from "./chat.module.scss";
@@ -46,9 +48,30 @@ type ChatBubbleProps = {
   busy: boolean;
 };
 
+const remarkPlugins = [remarkGfm];
+
+const markdownComponents: Components = {
+  a({ href, children }) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer">
+        {children}
+      </a>
+    );
+  },
+};
+
+function ChatMarkdown({ text }: { text: string }) {
+  return (
+    <Markdown remarkPlugins={remarkPlugins} components={markdownComponents}>
+      {text}
+    </Markdown>
+  );
+}
+
 function ChatBubble({ entry, busy }: ChatBubbleProps) {
   const isUser = entry.role === "user";
   const speaker = isUser ? "You" : "Model";
+  const markdown = !isUser && entry.text !== "";
   return (
     <li className={isUser ? styles.user : styles.assistant}>
       <Image
@@ -60,7 +83,13 @@ function ChatBubble({ entry, busy }: ChatBubbleProps) {
         height={32}
       />
       <span className={styles.visuallyHidden}>{speaker}</span>
-      <p className={styles.bubble}>{entry.text || (busy ? "…" : "")}</p>
+      {markdown ? (
+        <div className={styles.bubble}>
+          <ChatMarkdown text={entry.text} />
+        </div>
+      ) : (
+        <p className={styles.bubble}>{entry.text || (busy ? "…" : "")}</p>
+      )}
     </li>
   );
 }

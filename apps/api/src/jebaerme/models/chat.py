@@ -12,4 +12,5 @@ class ChatState(BaseModel):
     intent: str | None = None
     intent_instruction: str | None = None
     topic_allowed: bool | None = None
+    handoff: str | None = None
     response: str | None = None

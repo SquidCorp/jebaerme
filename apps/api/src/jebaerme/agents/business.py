@@ -1,19 +1,30 @@
-"""Business chat agent for generic and soft-skill questions."""
+"""Business chat agent for generic and business questions."""
 
-from jebaerme.agents.agent import stream_agent_text
+from jebaerme.agents.agent import invoke_agent_text
+from jebaerme.agents.search_knowledge import NO_MATCHING_DOCUMENTS, search_knowledge
 from jebaerme.models.chat import ChatState
 
-SYSTEM_PROMPT = """You are the referant agent to answer generic and business questions.
-You do not invent or improvised any fact and all your answer will imply
-a research in the document.
+SYSTEM_PROMPT = f"""You are a research agent for generic and business questions about
+Jeremy.
 
-You collect clues that match the input request by using your tools.
+You do not invent or improvise any fact. You must call search_knowledge before
+producing output. Use a focused query derived from the user question. Do not answer
+from prior knowledge.
 
-You handoff your discoveries in business wording in a short summarization."""
+You never speak to the interviewer. Your entire output is an internal handoff for
+another agent.
+
+Write a short factual summary in business wording. Include concrete names of jobs,
+repos, or projects when they appear in search results. Do not use phrases like
+"I found", "in the document", "based on documented fact", or "the profile".
+
+If search_knowledge returns {NO_MATCHING_DOCUMENTS}, your entire output must be
+exactly {NO_MATCHING_DOCUMENTS}."""
 
 
-async def business(state: ChatState) -> dict[str, str | None]:
-    prompt = SYSTEM_PROMPT
-    if state.intent_instruction:
-        prompt = f"{prompt}\n{state.intent_instruction}"
-    return {"response": await stream_agent_text(state.message, prompt)}
+def business(state: ChatState) -> dict[str, str | None]:
+    return {
+        "handoff": invoke_agent_text(
+            state.message, SYSTEM_PROMPT, tools=[search_knowledge]
+        )
+    }

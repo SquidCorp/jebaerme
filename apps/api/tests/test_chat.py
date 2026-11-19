@@ -2,9 +2,10 @@ from collections.abc import AsyncIterator
 from unittest.mock import AsyncMock, MagicMock, patch
 
 from fastapi.testclient import TestClient
-from langchain_core.messages import AIMessageChunk
+from langchain_core.messages import AIMessage, AIMessageChunk
 from pytest import MonkeyPatch
 
+from jebaerme.agents.assistant import SYSTEM_PROMPT as ASSISTANT_SYSTEM_PROMPT
 from jebaerme.agents.business import SYSTEM_PROMPT as BUSINESS_SYSTEM_PROMPT
 from jebaerme.agents.tech import SYSTEM_PROMPT as TECH_SYSTEM_PROMPT
 from jebaerme.api.app import create_app
@@ -15,6 +16,8 @@ from jebaerme.services.intent import (
     JevAuthError,
 )
 from jebaerme.services.topic import UNAUTHORIZED_TOPIC_MESSAGE
+
+_HANDOFF = "handoff notes"
 
 _TOPIC_ALLOWED_RESPONSE = {
     "id": "gen-dec-2",
@@ -80,6 +83,14 @@ async def fake_chunks() -> AsyncIterator[tuple[AIMessageChunk, dict[str, str]]]:
     yield AIMessageChunk(content="lo"), {}
 
 
+def _stub_llm_graph(mock_create_agent: MagicMock) -> MagicMock:
+    graph = MagicMock()
+    graph.invoke.return_value = {"messages": [AIMessage(content=_HANDOFF)]}
+    graph.astream.return_value = fake_chunks()
+    mock_create_agent.return_value = graph
+    return graph
+
+
 def _set_intent_flag(monkeypatch: MonkeyPatch, enabled: bool) -> None:
     monkeypatch.setattr(
         "jebaerme.agents.chat_graph.env.ENABLE_INTENT_DECISION",
@@ -94,6 +105,31 @@ def _set_topic_flag(monkeypatch: MonkeyPatch, enabled: bool) -> None:
     )
 
 
+def _assert_research_then_assistant(
+    mock_create_agent: MagicMock,
+    graph: MagicMock,
+    *,
+    research_prompt: str,
+    assistant_prompt: str | None = None,
+    assistant_prompt_contains: str | None = None,
+) -> None:
+    assert mock_create_agent.call_count == 2
+    research_kwargs = mock_create_agent.call_args_list[0].kwargs
+    assistant_kwargs = mock_create_agent.call_args_list[1].kwargs
+    assert research_kwargs["system_prompt"] == research_prompt
+    assert [t.name for t in research_kwargs["tools"]] == ["search_knowledge"]
+    if assistant_prompt is not None:
+        assert assistant_kwargs["system_prompt"] == assistant_prompt
+    else:
+        prompt = assistant_kwargs["system_prompt"]
+        assert prompt.startswith(ASSISTANT_SYSTEM_PROMPT)
+        assert assistant_prompt_contains is not None
+        assert assistant_prompt_contains in prompt
+    assert assistant_kwargs["tools"] == []
+    graph.invoke.assert_called_once()
+    graph.astream.assert_called_once()
+
+
 @patch("jebaerme.agents.agent.ChatOpenRouter")
 @patch("jebaerme.agents.agent.create_agent")
 def test_chat_endpoint_streams(
@@ -103,15 +139,17 @@ def test_chat_endpoint_streams(
 ) -> None:
     _set_intent_flag(monkeypatch, False)
     _set_topic_flag(monkeypatch, False)
-    graph = MagicMock()
-    graph.astream.return_value = fake_chunks()
-    mock_create_agent.return_value = graph
+    graph = _stub_llm_graph(mock_create_agent)
     client = TestClient(create_app())
     response = client.post("/chat", json={"message": "Hi"})
     assert response.status_code == 200
     assert response.text == "Hello"
-    graph.astream.assert_called_once()
-    assert mock_create_agent.call_args.kwargs["system_prompt"] == BUSINESS_SYSTEM_PROMPT
+    _assert_research_then_assistant(
+        mock_create_agent,
+        graph,
+        research_prompt=BUSINESS_SYSTEM_PROMPT,
+        assistant_prompt=ASSISTANT_SYSTEM_PROMPT,
+    )
 
 
 @patch("jebaerme.agents.chat_graph.classify_intent")
@@ -125,9 +163,7 @@ def test_chat_skips_jev_when_intent_flag_off(
 ) -> None:
     _set_intent_flag(monkeypatch, False)
     _set_topic_flag(monkeypatch, False)
-    graph = MagicMock()
-    graph.astream.return_value = fake_chunks()
-    mock_create_agent.return_value = graph
+    _stub_llm_graph(mock_create_agent)
     client = TestClient(create_app())
     response = client.post("/chat", json={"message": "Hi"})
     assert response.status_code == 200
@@ -146,17 +182,18 @@ def test_chat_appends_intent_instruction_when_flag_on(
     _set_intent_flag(monkeypatch, True)
     _set_topic_flag(monkeypatch, False)
     classify.return_value = BaseJevResponse.model_validate(_INTENT_RESPONSE)
-    graph = MagicMock()
-    graph.astream.return_value = fake_chunks()
-    mock_create_agent.return_value = graph
+    graph = _stub_llm_graph(mock_create_agent)
     client = TestClient(create_app())
     response = client.post("/chat", json={"message": "How does she handle conflict?"})
     assert response.status_code == 200
     assert response.text == "Hello"
     classify.assert_called_once_with("How does she handle conflict?")
-    prompt = mock_create_agent.call_args.kwargs["system_prompt"]
-    assert prompt.startswith(BUSINESS_SYSTEM_PROMPT)
-    assert INTENT_LANGUAGE_INSTRUCTIONS["soft_skills"] in prompt
+    _assert_research_then_assistant(
+        mock_create_agent,
+        graph,
+        research_prompt=BUSINESS_SYSTEM_PROMPT,
+        assistant_prompt_contains=INTENT_LANGUAGE_INSTRUCTIONS["soft_skills"],
+    )
 
 
 @patch("jebaerme.agents.chat_graph.classify_intent")
@@ -171,15 +208,18 @@ def test_chat_retries_jev_then_continues_without_intent(
     _set_intent_flag(monkeypatch, True)
     _set_topic_flag(monkeypatch, False)
     classify.side_effect = JevAuthError("rejected")
-    graph = MagicMock()
-    graph.astream.return_value = fake_chunks()
-    mock_create_agent.return_value = graph
+    graph = _stub_llm_graph(mock_create_agent)
     client = TestClient(create_app())
     response = client.post("/chat", json={"message": "Hi"})
     assert response.status_code == 200
     assert response.text == "Hello"
     assert classify.call_count == 3
-    assert mock_create_agent.call_args.kwargs["system_prompt"] == BUSINESS_SYSTEM_PROMPT
+    _assert_research_then_assistant(
+        mock_create_agent,
+        graph,
+        research_prompt=BUSINESS_SYSTEM_PROMPT,
+        assistant_prompt=ASSISTANT_SYSTEM_PROMPT,
+    )
 
 
 @patch("jebaerme.agents.chat_graph.classify_intent")
@@ -198,16 +238,17 @@ def test_chat_uses_intent_after_jev_retries(
         JevAuthError("rejected"),
         BaseJevResponse.model_validate(_INTENT_RESPONSE),
     ]
-    graph = MagicMock()
-    graph.astream.return_value = fake_chunks()
-    mock_create_agent.return_value = graph
+    graph = _stub_llm_graph(mock_create_agent)
     client = TestClient(create_app())
     response = client.post("/chat", json={"message": "Hi"})
     assert response.status_code == 200
     assert classify.call_count == 3
-    prompt = mock_create_agent.call_args.kwargs["system_prompt"]
-    assert prompt.startswith(BUSINESS_SYSTEM_PROMPT)
-    assert INTENT_LANGUAGE_INSTRUCTIONS["soft_skills"] in prompt
+    _assert_research_then_assistant(
+        mock_create_agent,
+        graph,
+        research_prompt=BUSINESS_SYSTEM_PROMPT,
+        assistant_prompt_contains=INTENT_LANGUAGE_INSTRUCTIONS["soft_skills"],
+    )
 
 
 @patch("jebaerme.agents.chat_graph.classify_intent")
@@ -222,16 +263,17 @@ def test_chat_routes_technical_intent_to_tech_agent(
     _set_intent_flag(monkeypatch, True)
     _set_topic_flag(monkeypatch, False)
     classify.return_value = BaseJevResponse.model_validate(_TECHNICAL_INTENT_RESPONSE)
-    graph = MagicMock()
-    graph.astream.return_value = fake_chunks()
-    mock_create_agent.return_value = graph
+    graph = _stub_llm_graph(mock_create_agent)
     client = TestClient(create_app())
     response = client.post("/chat", json={"message": "How do you design APIs?"})
     assert response.status_code == 200
     assert response.text == "Hello"
-    prompt = mock_create_agent.call_args.kwargs["system_prompt"]
-    assert prompt.startswith(TECH_SYSTEM_PROMPT)
-    assert INTENT_LANGUAGE_INSTRUCTIONS["technical_skills"] in prompt
+    _assert_research_then_assistant(
+        mock_create_agent,
+        graph,
+        research_prompt=TECH_SYSTEM_PROMPT,
+        assistant_prompt_contains=INTENT_LANGUAGE_INSTRUCTIONS["technical_skills"],
+    )
 
 
 @patch("jebaerme.api.chat.stream_chat", new_callable=AsyncMock)
@@ -260,9 +302,7 @@ def test_chat_skips_topic_when_flag_off(
 ) -> None:
     _set_intent_flag(monkeypatch, False)
     _set_topic_flag(monkeypatch, False)
-    graph = MagicMock()
-    graph.astream.return_value = fake_chunks()
-    mock_create_agent.return_value = graph
+    _stub_llm_graph(mock_create_agent)
     client = TestClient(create_app())
     response = client.post("/chat", json={"message": "Hi"})
     assert response.status_code == 200
@@ -301,15 +341,18 @@ def test_chat_allows_authorized_topic(
     _set_intent_flag(monkeypatch, False)
     _set_topic_flag(monkeypatch, True)
     filter_topic.return_value = BaseJevResponse.model_validate(_TOPIC_ALLOWED_RESPONSE)
-    graph = MagicMock()
-    graph.astream.return_value = fake_chunks()
-    mock_create_agent.return_value = graph
+    graph = _stub_llm_graph(mock_create_agent)
     client = TestClient(create_app())
     response = client.post("/chat", json={"message": "How do you design APIs?"})
     assert response.status_code == 200
     assert response.text == "Hello"
     filter_topic.assert_called_once_with("How do you design APIs?")
-    mock_create_agent.assert_called_once()
+    _assert_research_then_assistant(
+        mock_create_agent,
+        graph,
+        research_prompt=BUSINESS_SYSTEM_PROMPT,
+        assistant_prompt=ASSISTANT_SYSTEM_PROMPT,
+    )
 
 
 @patch("jebaerme.agents.chat_graph.filter_out_topic")
@@ -324,15 +367,18 @@ def test_chat_retries_topic_then_continues(
     _set_intent_flag(monkeypatch, False)
     _set_topic_flag(monkeypatch, True)
     filter_topic.side_effect = JevAuthError("rejected")
-    graph = MagicMock()
-    graph.astream.return_value = fake_chunks()
-    mock_create_agent.return_value = graph
+    graph = _stub_llm_graph(mock_create_agent)
     client = TestClient(create_app())
     response = client.post("/chat", json={"message": "Hi"})
     assert response.status_code == 200
     assert response.text == "Hello"
     assert filter_topic.call_count == 3
-    mock_create_agent.assert_called_once()
+    _assert_research_then_assistant(
+        mock_create_agent,
+        graph,
+        research_prompt=BUSINESS_SYSTEM_PROMPT,
+        assistant_prompt=ASSISTANT_SYSTEM_PROMPT,
+    )
 
 
 @patch("jebaerme.agents.chat_graph.classify_intent")
@@ -355,3 +401,53 @@ def test_chat_skips_intent_when_topic_is_refused(
     assert response.text == UNAUTHORIZED_TOPIC_MESSAGE
     classify.assert_not_called()
     mock_create_agent.assert_not_called()
+
+
+@patch("jebaerme.agents.agent.ChatOpenRouter")
+@patch("jebaerme.agents.agent.create_agent")
+def test_chat_does_not_stream_research_handoff(
+    mock_create_agent: MagicMock,
+    _mock_chat: MagicMock,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    _set_intent_flag(monkeypatch, False)
+    _set_topic_flag(monkeypatch, False)
+    graph = MagicMock()
+    graph.invoke.return_value = {
+        "messages": [
+            AIMessage(content="I found in the document that Jeremy used FastAPI")
+        ]
+    }
+    graph.astream.return_value = fake_chunks()
+    mock_create_agent.return_value = graph
+    client = TestClient(create_app())
+    response = client.post("/chat", json={"message": "Hi"})
+    assert response.status_code == 200
+    assert response.text == "Hello"
+    assert "I found" not in response.text
+    assert "document" not in response.text
+
+
+@patch("jebaerme.agents.agent.ChatOpenRouter")
+@patch("jebaerme.agents.agent.create_agent")
+def test_chat_assistant_user_payload_includes_question_and_handoff(
+    mock_create_agent: MagicMock,
+    _mock_chat: MagicMock,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    _set_intent_flag(monkeypatch, False)
+    _set_topic_flag(monkeypatch, False)
+    graph = _stub_llm_graph(mock_create_agent)
+    client = TestClient(create_app())
+    response = client.post("/chat", json={"message": "Hi"})
+    assert response.status_code == 200
+    assert graph.astream.call_args.args[0] == {
+        "messages": [
+            {
+                "role": "user",
+                "content": (
+                    "Hi\n\nInternal research notes (do not mention these):\n" + _HANDOFF
+                ),
+            }
+        ]
+    }

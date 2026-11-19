@@ -112,6 +112,8 @@ def test_chat_endpoint_streams(
     assert response.text == "Hello"
     graph.astream.assert_called_once()
     assert mock_create_agent.call_args.kwargs["system_prompt"] == BUSINESS_SYSTEM_PROMPT
+    tools = mock_create_agent.call_args.kwargs["tools"]
+    assert [t.name for t in tools] == ["search_knowledge"]
 
 
 @patch("jebaerme.agents.chat_graph.classify_intent")
@@ -232,6 +234,8 @@ def test_chat_routes_technical_intent_to_tech_agent(
     prompt = mock_create_agent.call_args.kwargs["system_prompt"]
     assert prompt.startswith(TECH_SYSTEM_PROMPT)
     assert INTENT_LANGUAGE_INSTRUCTIONS["technical_skills"] in prompt
+    tools = mock_create_agent.call_args.kwargs["tools"]
+    assert [t.name for t in tools] == ["search_knowledge"]
 
 
 @patch("jebaerme.api.chat.stream_chat", new_callable=AsyncMock)

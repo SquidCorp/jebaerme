@@ -89,5 +89,23 @@ async def stream_agent_text(
     return "".join(texts)
 
 
+def invoke_agent_text(
+    message: str,
+    system_prompt: str,
+    tools: Sequence[BaseTool] | None = None,
+    *,
+    temperature: float = 0.2,
+) -> str:
+    agent = Agent(
+        AgentPrompt(prompt=system_prompt),
+        AgentConfig(
+            model=env.CHAT_MODEL,
+            temperature=temperature,
+        ),
+        tools=tools,
+    )
+    return agent.invoke(message)
+
+
 def _user_turn(msg: str) -> dict[str, list[dict[str, str]]]:
     return {"messages": [{"role": "user", "content": msg}]}

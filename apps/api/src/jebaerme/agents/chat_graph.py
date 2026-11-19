@@ -1,4 +1,6 @@
-"""Chat LangGraph: optional Jev topic filter and intent, then business or tech."""
+"""Chat LangGraph: optional Jev topic filter and intent, then business or tech
+research, then assistant.
+"""
 
 from collections.abc import AsyncIterator
 from typing import Literal
@@ -7,6 +9,7 @@ from langgraph.config import get_stream_writer
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 
+from jebaerme.agents.assistant import assistant
 from jebaerme.agents.business import business
 from jebaerme.agents.tech import tech
 from jebaerme.models.chat import ChatState
@@ -91,6 +94,7 @@ def build_chat_graph() -> CompiledStateGraph[ChatState, None, ChatState, ChatSta
     graph.add_node("fetch_intent", fetch_intent)
     graph.add_node("refuse", refuse)
     graph.add_node("business", business)
+    graph.add_node("assistant", assistant)
     graph.add_node("tech", tech)
     graph.add_conditional_edges(
         START,
@@ -118,8 +122,9 @@ def build_chat_graph() -> CompiledStateGraph[ChatState, None, ChatState, ChatSta
             "tech": "tech",
         },
     )
-    graph.add_edge("business", END)
-    graph.add_edge("tech", END)
+    graph.add_edge("business", "assistant")
+    graph.add_edge("tech", "assistant")
+    graph.add_edge("assistant", END)
     graph.add_edge("refuse", END)
     return graph.compile()
 
